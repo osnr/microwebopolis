@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+	<title>Micropolis</title>
+	<link rel="stylesheet" type="text/css" href="css/theme/jquery-ui-1.8.5.custom.css">
+	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.5.custom.min.js"></script>
+	<script type="text/javascript" src="js/json/json2.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script type="text/javascript" src="js/color.js"></script>
+	<script type="text/javascript" src="js/rules.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/canvas.js"></script>
+	<script type="text/javascript" src="js/map.js"></script>
+	<script type="text/javascript" src="js/ui.js"></script>
+	<script type="text/javascript" src="js/gamestate.js"></script>
+	<script type="text/javascript" src="js/util.js"></script>
+	<script type="text/javascript" src="js/tile.js"></script>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="canvasFrame" class="ui-widget">
+	<div id="cityName" class="ui-widget-header frame-title">City View</div>
+	<div id="canvasContent" class="ui-widget-content">
+		<canvas id="canvas" width="700" height="540">
+			<p id="noCanvasMessage">This application requires a browser that supports HTML 5. Please try Google Chrome, Fire Fox or IE 9.</p>
+		</canvas>
+	</div>
+</div>
+<div id="interfaceFrame" class="ui-widget">
+	<div class="ui-widget-header frame-title">Map</div>
+	<div id="mapWindow" class="ui-widget-content">
+		<canvas id="mapCanvas" width="128" height="128">
+			<p id="noCanvasMessage">This application requires a browser that supports HTML 5. Please try Google Chrome, Fire Fox or IE 9.</p>
+		</canvas>
+	</div>
+	<div class="ui-widget-header frame-title">Toolbox</div>
+	<div id="toolboxWindow" class="ui-widget-content">
+		<div class="toolbox-icon" id="toolboxBulldozer"></div>
+		<div class="toolbox-icon" id="toolboxRoad"></div>
+		<div style="clear: both;"></div>
+		<div id="zoomTitle" class="center">Zoom: 1x</div>
+		<div id="zoomSlider" style="margin: 4px 6px;"></div>
+	</div>
+</div>
+<img id="tileset1x" src="img/tileset1x.png" alt="Tile Set 1x Zoom" style="display: none;">
+<img id="tileset2x" src="img/tileset2x.png" alt="Tile Set 2x Zoom" style="display: none;">
+<img id="tileset4x" src="img/tileset4x.png" alt="Tile Set 4x Zoom" style="display: none;">
+<img src="img/icdozr.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icdozrhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icroad.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icroadhi.png" alt="Icon Pre-Load" style="display: none;">
+
+</body>
+</html>
