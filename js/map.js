@@ -13,11 +13,26 @@ Map.prototype =
 {
 	viewOffsetX: 0,
 	viewOffsetY: 0,
+	centerX: 0,
+	centerY: 0,
 	panView: function(xOfs, yOfs)
 	{
-		this.viewOffsetX += xOfs;
-		this.viewOffsetY += yOfs;
+		this.centerX += xOfs;
+		this.centerY += yOfs;
 		this.draw();
+	},
+	centerView: function(x, y)
+	{
+		this.centerX = x;
+		this.centerY = y;
+		this.draw();
+	},
+	updateViewOffset: function()
+	{
+		this.viewOffsetX = (this.centerX - (canvas.tilesWide / 2)) | 0;
+		this.viewOffsetY = (this.centerY - (canvas.tilesHigh / 2)) | 0;
+		canvas.miniMapUpdateRect(this.viewOffsetX, this.viewOffsetY,
+			canvas.tilesWide, canvas.tilesHigh);
 	},
 	screenToMapLocation: function(x, y)
 	{
@@ -43,6 +58,7 @@ Map.prototype =
 	},
 	draw: function()
 	{
+		this.updateViewOffset();
 		var ix, iy, tile, dataOfs;
 		var minX = this.viewOffsetX < 0 ? 0 : this.viewOffsetX;
 		minX = minX > this.width ? this.width : minX;
@@ -180,10 +196,13 @@ Map.prototype =
 			for(ix = 0; ix < this.width; ++ix)
 			{
 				tile = this.tiles[iy * this.width + ix];
+				tile.x = ix;
+				tile.y = iy;
 				tile.n = iy > 0 ? this.tiles[(iy - 1) * this.width + ix] : nullTile;
 				tile.s = iy < this.height - 1 ? this.tiles[(iy + 1) * this.width + ix] : nullTile;
 				tile.w = ix > 0 ? this.tiles[iy * this.width + ix - 1] : nullTile;
 				tile.e = ix < this.width - 1 ? this.tiles[iy * this.width + ix + 1] : nullTile;
+				tile.setTile();
 			}
 		}
 	},
@@ -217,7 +236,7 @@ Map.prototype =
 		for(var i = 0; i < this.width * this.height; ++i)
 			this.tiles[i].setForestTile();
 		for(var i = 0; i < this.width * this.height; ++i)
-			this.tiles[i].setForestTile(true);
+			this.tiles[i].setForestTile();
 		
 		// Smooth water tiles
 		for(var i = 0; i < this.width * this.height; ++i)
@@ -330,8 +349,7 @@ Map.prototype =
 			y >= this.height)
 			return cost;	
 		var tile = this.tiles[y * this.width + x];
-		if(tile.bulldoze(pretend))
-			cost += game.rules.cost.bulldoze;
+		cost += tile.bulldoze(pretend)
 		if(!pretend)
 		{
 			this.drawTile(x, y);
@@ -352,25 +370,8 @@ Map.prototype =
 			y >= this.height)
 			return cost;
 		
-		// We can't build a road on top of a rail or zone or other road
 		var tile = this.tiles[y * this.width + x];
-		if(tile.rail ||
-			tile.road ||
-			tile.zone != "none")
-			return cost;
-		
-		// TODO Handle bridges
-		if(tile.groundType == "water")
-			throw new Error();
-		
-		// Add the cost of bulldozing forest
-		if(tile.groundType == "forest")
-		{
-			cost += game.rules.cost.bulldoze;
-			tile.bulldoze(pretend);
-		}
-		
-		// Add the road and we're done
+		cost += tile.buildRoad(pretend);
 		if(!pretend)
 		{
 			tile.buildRoad();
@@ -380,7 +381,6 @@ Map.prototype =
 			this.drawTile(x, y + 1);
 			this.drawTile(x, y - 1);
 		}
-		cost += game.rules.cost.road;
 		return cost;
 	}
 };

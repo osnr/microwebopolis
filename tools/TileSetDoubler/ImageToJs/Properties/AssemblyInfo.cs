@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PngSanatizer")]
+[assembly: AssemblyTitle("ImageToJs")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wal-Mart Stores, Inc.")]
-[assembly: AssemblyProduct("PngSanatizer")]
+[assembly: AssemblyProduct("ImageToJs")]
 [assembly: AssemblyCopyright("Copyright © Wal-Mart Stores, Inc. 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("966319d9-1890-46b9-8a6e-9b3642149a94")]
+[assembly: Guid("44ad7109-e446-40b4-a5ee-4c27f693e6f8")]
 
 // Version information for an assembly consists of the following four values:
 //

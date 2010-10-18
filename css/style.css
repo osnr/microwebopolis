@@ -4,12 +4,10 @@ body, html
 	margin: 0 auto;
 	padding: 0;
 	font-size: 10pt;
-	width: 960px;
 }
-#canvasFrame
+#bodyWrap
 {
-	width: 702px;
-	float: left;
+	position: relative;
 }
 #canvasContent
 {
@@ -21,33 +19,42 @@ body, html
 {
 	background-color: #000000;
 	margin: 0 auto;
+	position: absolute;
+	top: 0px;
+	left: 224px;
 }
 #mapCanvas
 {
 	background-color: #000000;
 	margin: 0 auto;
+	cursor: pointer;
 }
 #interfaceFrame
 {
-	width: 236px;
-	float: left;
+	width: 224px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
 }
 #mapWindow
 {
 	height: 128px;
+	width: 100%;
 }
 #toolboxWindow
 {
 	height: 380px;
 	padding: 4px;
+	overflow: auto;
 }
-.frame-title
+#cityName
 {
 	font-size: 12pt;
 	height: 20px;
 	text-align: center;
 	padding: 0;
 	margin: 0;
+	border: none;
 }
 .center
 {

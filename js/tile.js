@@ -6,6 +6,7 @@ function Tile(tile, groundType)
 	this.rail = false;
 	this.line = false;
 	this.zone = "none";
+	this.hBridge = false;
 	this.n = null;
 	this.s = null;
 	this.e = null;
@@ -13,21 +14,30 @@ function Tile(tile, groundType)
 }
 Tile.prototype =
 {
-	// Bulldoze a tile, returns true if something actually changed
+	// Set the tile graphic of a tile, automatically updates the mini-map
+	setTile: function(tile)
+	{
+		if(tile !== undefined)
+			this.tile = tile;
+		if(!this.isNullTile)
+			canvas.miniMapTile(this.tile, this.x, this.y);
+	},
+	// Bulldoze a tile, returns the cost
 	bulldoze: function(pretend)
 	{
-		var ret = false;
+		var cost = 0;
 		
 		// TODO Integrate structures
 		
-		// Can't bulldoze water
+		// TODO Support water
 		if(this.groundType == "water")
-			return ret;
+			return cost;
+		
 		if(this.tile != 0)
-			ret = true;
+			cost = game.rules.cost.bulldoze;
 		if(!pretend)
 		{
-			this.tile = 0;
+			this.setTile(0);
 			if(this.groundType == "forest")
 				this.groundType = "ground";
 			this.road = false;
@@ -43,38 +53,99 @@ Tile.prototype =
 			this.e.setForestTile(true);
 			this.w.setForestTile(true);
 		}
-		return ret;
+		return cost;
 	},
 	// Build a road
-	buildRoad: function()
+	buildRoad: function(pretend)
 	{
-		this.road = true;
-		this.setRoadTile();
-		this.n.setRoadTile();
-		this.s.setRoadTile();
-		this.e.setRoadTile();
-		this.w.setRoadTile();
+		var cost = 0;
+		var isHBridge = false;
+
+		// We can't build a road on top of another road, a zone, or if the
+		// tile already has a rail and a line.
+		if(this.road ||
+			(this.rail && this.line) ||
+			this.zone != "none")
+			return cost;
+		
+		// Handle bridges
+		if(this.groundType == "water")
+		{
+			// We can't build next to any other bridge type
+			if((this.n.groundType == "water" && (this.n.rail || this.n.line)) ||
+				(this.s.groundType == "water" && (this.s.rail || this.s.line)) ||
+				(this.e.groundType == "water" && (this.e.rail || this.e.line)) ||
+				(this.w.groundType == "water" && (this.w.rail || this.w.line)))
+				return cost;
+			
+			// There has to be a road next to us to base the bridge on
+			if(this.n.road ||
+				this.s.road)
+				isHBridge = false;
+			else if(this.e.road ||
+				this.w.road)
+				isHBridge = true;
+			else
+				return cost;
+
+			// We can't build next to a bridge of the opposite orientation
+			if((isHBridge && (this.n.road || this.s.road)) ||
+				(!isHBridge && (this.e.road || this.w.road)) ||
+				(this.n.groundType == "water" && this.n.road && this.n.hBridge) ||
+				(this.s.groundType == "water" && this.s.road && this.s.hBridge) ||
+				(this.e.groundType == "water" && this.e.road && !this.e.hBridge) ||
+				(this.w.groundType == "water" && this.w.road && !this.w.hBridge))
+				return cost;
+			}
+		
+		// Handle auto-bulldozing and cost
+		cost += this.bulldoze(pretend);
+		cost += game.rules.cost.road;
+		
+		if(!pretend)
+		{
+			this.road = true;
+			this.hBridge = isHBridge;
+			this.setRoadTile();
+			this.n.setRoadTile();
+			this.s.setRoadTile();
+			this.e.setRoadTile();
+			this.w.setRoadTile();
+		}
+		return cost;
 	},
 	setRoadTile: function()
 	{
 		if(!this.road)
 			return;
-		var roadIdx = 0;
-		if(this.n.road)
-			roadIdx |= 1;
-		if(this.s.road)
-			roadIdx |= 2;
-		if(this.e.road)
-			roadIdx |= 4;
-		if(this.w.road)
-			roadIdx |= 8;
-		this.tile = this.roadTiles[roadIdx];
+		
+		// Bridges
+		if(this.groundType == "water")
+		{
+			if(this.hBridge)
+				this.setTile(64);
+			else
+				this.setTile(65);
+		}
+		else
+		{
+			var roadIdx = 0;
+			if(this.n.road)
+				roadIdx |= 1;
+			if(this.s.road)
+				roadIdx |= 2;
+			if(this.e.road)
+				roadIdx |= 4;
+			if(this.w.road)
+				roadIdx |= 8;
+			this.setTile(this.roadTiles[roadIdx]);
+		}
 	},
 	// Attempt to set this tile as a water tile, returns true if it worked
 	setWater: function()
 	{
 		this.groundType = "water";
-		this.tile = rand(3) + 2;
+		this.setTile(rand(3) + 2);
 		return true;
 	},
 	setWaterTile: function()
@@ -86,13 +157,17 @@ Tile.prototype =
 			this.w.groundType == "water"))
 			return;
 		var idx = 0;
-		if(this.n.groundType == "water")
+		if(this.n.groundType == "water" ||
+			this.n.isNullTile)
 			idx |= 1;
-		if(this.s.groundType == "water")
+		if(this.s.groundType == "water" ||
+			this.s.isNullTile)
 			idx |= 2;
-		if(this.e.groundType == "water")
+		if(this.e.groundType == "water" ||
+			this.e.isNullTile)
 			idx |= 4;
-		if(this.w.groundType == "water")
+		if(this.w.groundType == "water" ||
+			this.w.isNullTile)
 			idx |= 8;
 		var temp = this.waterTiles[idx];
 		if(temp == 2)
@@ -101,7 +176,7 @@ Tile.prototype =
 		}
 		else if(rand(2) > 0)
 			temp -= 1;
-		this.tile = temp;
+		this.setTile(temp);
 	},
 	setWaterTileGroundType: function()
 	{
@@ -148,7 +223,7 @@ Tile.prototype =
 		{
 			return;
 		}
-		this.tile = temp;
+		this.setTile(temp);
 		if(this.tile == 0)
 			this.groundType = "ground";
 	},

@@ -11,6 +11,7 @@ var game =
 			return;
 		ui.update();
 		this.map = new Map(128, 128, {});
+		ui.resize();
 		this.redrawEverything();
 		this.state = new GameState();
 		this.state.updateUI();

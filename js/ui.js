@@ -7,8 +7,13 @@ var ui =
 	doButtonNumber: 0,
 	panButtonDown: false,
 	panButtonNumber: 2,
+	mapPanButtonNumber: 0,
+	mapPanButtonDown: false,
 	init: function()
 	{
+		// Window events
+		$(window).resize(function(){ui.resize();});
+	
 		// Toolbox buttons
 		$("#toolboxBulldozer")
 			.data("tool", "bulldozer")
@@ -34,7 +39,7 @@ var ui =
 		$("#zoomSlider")
 			.slider({
 				min: 1,
-				max: 3,
+				max: 4,
 				range: "min",
 				value: 1,
 				slide: this.zoomSlider
@@ -46,6 +51,47 @@ var ui =
 			.mousedown(this.cityViewMouseDown)
 			.mouseup(this.cityViewMouseUp)
 			.mouseout(this.cityViewMouseOut);
+		
+		// Mini map canvas
+		$("#mapCanvas")
+			.mousemove(this.mapMouseMove)
+			.mousedown(this.mapMouseDown)
+			.mouseup(this.mapMouseUp)
+			.mouseout(this.mapMouseOut);			
+	},
+	resize: function()
+	{
+		$("#toolboxWindow").css("height", window.innerHeight - 156);
+		canvas.resize(window.innerWidth - 224, window.innerHeight - 20);
+		game.map.draw();
+	},
+	mapMouseDown: function(e)
+	{
+		if(e.button == ui.mapPanButtonNumber)
+		{
+			ui.mapPanButtonDown = true;
+			ui.centerViewAt(e.offsetX, e.offsetY);
+		}
+	},
+	mapMouseUp: function(e)
+	{
+		if(e.button == ui.mapPanButtonNumber)
+		{
+			ui.mapPanButtonDown = false;
+		}
+	},
+	mapMouseOut: function(e)
+	{
+		ui.mapPanButtonDown = false;
+	},
+	mapMouseMove: function(e)
+	{
+		if(ui.mapPanButtonDown)
+			ui.centerViewAt(e.offsetX, e.offsetY);
+	},
+	centerViewAt: function(x, y)
+	{
+		game.map.centerView(x, y);
 	},
 	cityViewMouseDown: function(e)
 	{
@@ -145,8 +191,6 @@ var ui =
 	zoomSlider: function(e, ui)
 	{
 		var zoomLevel = ui.value;
-		if(zoomLevel >= 3)
-			++zoomLevel;
 		canvas.zoom(zoomLevel);
 		game.redrawEverything();
 		$("#zoomTitle").text("Zoom: " + zoomLevel + "x");

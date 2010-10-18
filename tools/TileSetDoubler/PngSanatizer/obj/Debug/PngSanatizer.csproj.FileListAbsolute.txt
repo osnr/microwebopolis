@@ -1,5 +1,0 @@
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\PngSanatizer\bin\Debug\PngSanatizer.exe
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\PngSanatizer\bin\Debug\PngSanatizer.pdb
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\PngSanatizer\obj\Debug\ResolveAssemblyReference.cache
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\PngSanatizer\obj\Debug\PngSanatizer.exe
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\PngSanatizer\obj\Debug\PngSanatizer.pdb

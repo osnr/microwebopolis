@@ -1,5 +1,0 @@
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\TileSetDoubler\bin\Debug\TileSetDoubler.exe
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\TileSetDoubler\bin\Debug\TileSetDoubler.pdb
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\TileSetDoubler\obj\Debug\ResolveAssemblyReference.cache
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\TileSetDoubler\obj\Debug\TileSetDoubler.exe
-C:\DATA\n0lanca\norm\working\micropolis\tools\TileSetDoubler\TileSetDoubler\obj\Debug\TileSetDoubler.pdb
