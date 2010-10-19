@@ -7,14 +7,14 @@ function Map(width, height, genParams)
 	this.tiles = [];
 	
 	// Generate map
-	this.generateMap(100, 10, 50, false);
+	this.generateMap(100, 5, 50, false);
 }
 Map.prototype =
 {
 	viewOffsetX: 0,
 	viewOffsetY: 0,
-	centerX: 0,
-	centerY: 0,
+	centerX: 64,
+	centerY: 64,
 	panView: function(xOfs, yOfs)
 	{
 		this.centerX += xOfs;
@@ -216,7 +216,14 @@ Map.prototype =
 		if(isIsland)
 			throw new Error();
 		
-		// TODO Add rivers
+		// Add rivers
+		var riverX = rand(this.width - 80) + 40;
+		var riverY = rand(this.height - 80) + 40;
+		var riverDir = rand(4);
+		this.doRiver(riverX, riverY, riverDir, riverDir, riverLevel, false);
+		riverDir = rotateDir(riverDir, 4);
+		riverDir = this.doRiver(riverX, riverY, riverDir, riverDir, riverLevel, false);
+		this.doRiver(riverX, riverY, rand(4), riverDir, riverLevel, true);
 		
 		// Add lakes
 		var numLakes = lakeLevel / 2 + rand(lakeLevel / 4);
@@ -243,6 +250,38 @@ Map.prototype =
 			this.tiles[i].setWaterTile();
 		for(var i = 0; i < this.width * this.height; ++i)
 			this.tiles[i].setWaterTileGroundType();
+	},
+	doRiver: function(x, y, riverDir, terrainDir, riverLevel, small)
+	{
+		var rate1 = riverLevel + 10;
+		var rate2 = riverLevel + 100;
+		var ofs = small ? 3 : 4;
+		
+
+		while(true)
+		{
+			if(x + ofs < 0 ||
+				y + ofs < 0 ||
+				x + ofs >= this.width ||
+				y + ofs >= this.height)
+				break;
+			if(small)
+				this.smallPuddle(x, y);
+			else
+				this.largePuddle(x, y);
+			if(rand(rate1) < 10)
+				terrainDir = riverDir;
+			else
+			{
+				if(rand(rate2) > 90)
+					terrainDir = rotateDir(terrainDir, 1);
+				if(rand(rate2) > 90)
+					terrainDir = rotateDir(terrainDir, 7);
+			}
+			x += dirOfsX[terrainDir];
+			y += dirOfsY[terrainDir];
+		}
+		return terrainDir;
 	},
 	makeLake: function(x, y)
 	{
@@ -375,6 +414,52 @@ Map.prototype =
 		if(!pretend)
 		{
 			tile.buildRoad();
+			this.drawTile(x, y);
+			this.drawTile(x + 1, y);
+			this.drawTile(x - 1, y);
+			this.drawTile(x, y + 1);
+			this.drawTile(x, y - 1);
+		}
+		return cost;
+	},
+	// Build a rail on a tile. Returns the cost if any
+	buildRail: function(x, y, pretend)
+	{
+		var cost = 0;
+		if(x < 0 ||
+			y < 0 ||
+			x >= this.width ||
+			y >= this.height)
+			return cost;
+		
+		var tile = this.tiles[y * this.width + x];
+		cost += tile.buildRail(pretend);
+		if(!pretend)
+		{
+			tile.buildRail();
+			this.drawTile(x, y);
+			this.drawTile(x + 1, y);
+			this.drawTile(x - 1, y);
+			this.drawTile(x, y + 1);
+			this.drawTile(x, y - 1);
+		}
+		return cost;
+	},
+	// Build a line on a tile. Returns the cost if any
+	buildLine: function(x, y, pretend)
+	{
+		var cost = 0;
+		if(x < 0 ||
+			y < 0 ||
+			x >= this.width ||
+			y >= this.height)
+			return cost;
+		
+		var tile = this.tiles[y * this.width + x];
+		cost += tile.buildLine(pretend);
+		if(!pretend)
+		{
+			tile.buildLine();
 			this.drawTile(x, y);
 			this.drawTile(x + 1, y);
 			this.drawTile(x - 1, y);

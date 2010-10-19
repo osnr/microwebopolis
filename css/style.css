@@ -60,18 +60,26 @@ body, html
 {
 	text-align: center;
 }
+.left
+{
+	text-align: left;
+}
+.right
+{
+	text-align: right;
+}
 .toolbox-icon
 {
 	background-repeat: no-repeat;
 	cursor: pointer;
 	float: left;
 }
-#toolboxBulldozer
+.icon-size1
 {
 	width: 34px;
 	height: 34px;
 }
-#toolboxRoad
+.icon-size2
 {
 	width: 56px;
 	height: 24px;

@@ -25,6 +25,16 @@ var ui =
 			.data("iconlow", "img/icroad.png")
 			.data("iconhi", "img/icroadhi.png")
 			.click(this.toolboxButton);
+		$("#toolboxRail")
+			.data("tool", "rail")
+			.data("iconlow", "img/icrail.png")
+			.data("iconhi", "img/icrailhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxLine")
+			.data("tool", "line")
+			.data("iconlow", "img/icwire.png")
+			.data("iconhi", "img/icwirehi.png")
+			.click(this.toolboxButton);
 		$(".toolbox-icon").each(function()
 		{
 			$(this).css("background-image", "url('" + $(this).data("iconhi")
@@ -57,7 +67,9 @@ var ui =
 			.mousemove(this.mapMouseMove)
 			.mousedown(this.mapMouseDown)
 			.mouseup(this.mapMouseUp)
-			.mouseout(this.mapMouseOut);			
+			.mouseout(this.mapMouseOut);
+		
+		dialogs.init();
 	},
 	resize: function()
 	{
@@ -153,7 +165,7 @@ var ui =
 	},
 	toolHover: function(x, y)
 	{
-		var cost = this.currentTool.do(x, y, true);
+		var cost = this.currentTool.doIt(x, y, true);
 		if(cost > 0)
 		{
 			// TODO Add price display
@@ -174,7 +186,7 @@ var ui =
 	toolDo: function(x, y)
 	{
 		this.toolBlur(x, y);
-		var cost = this.currentTool.do(x, y, false);
+		var cost = this.currentTool.doIt(x, y, false);
 		game.state.chargeFunds(cost);
 		this.toolHover(x, y);
 	},
@@ -210,7 +222,7 @@ var ui =
 			width: 1,
 			height: 1,
 			hoverColor: Color.red,
-			do: function(x, y, pretend)
+			doIt: function(x, y, pretend)
 			{
 				return game.map.bulldozeTile(x, y, pretend);;
 			}
@@ -220,9 +232,29 @@ var ui =
 			width: 1,
 			height: 1,
 			hoverColor: Color.gray,
-			do: function(x, y, pretend)
+			doIt: function(x, y, pretend)
 			{
 				return game.map.buildRoad(x, y, pretend);
+			}
+		},
+		rail:
+		{
+			width: 1,
+			height: 1,
+			hoverColor: Color.gray,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildRail(x, y, pretend);
+			}
+		},
+		line:
+		{
+			width: 1,
+			height: 1,
+			hoverColor: Color.gray,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildLine(x, y, pretend);
 			}
 		}
 	}

@@ -17,7 +17,7 @@ var canvas =
 	tilesWide: 0,
 	tilesHigh: 0,
 	zoomLevel: 1,
-	miniMapFlushDelayMs: 100,
+	miniMapFlushDelayMs: 200,
 	miniMapDirty: false,
 	miniMapRect:
 	{

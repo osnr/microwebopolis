@@ -14,6 +14,7 @@
 	<script type="text/javascript" src="js/canvas.js"></script>
 	<script type="text/javascript" src="js/map.js"></script>
 	<script type="text/javascript" src="js/ui.js"></script>
+	<script type="text/javascript" src="js/dialogs.js"></script>
 	<script type="text/javascript" src="js/gamestate.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript" src="js/tile.js"></script>
@@ -21,6 +22,7 @@
 </head>
 <body oncontextmenu="return false;">
 
+<!-- Main UI -->
 <div id="cityName" class="ui-widget-header frame-title">City View</div>
 <div id="bodyWrap">
 	<canvas id="canvas" width="640" height="480">
@@ -33,12 +35,40 @@
 		<div id="toolboxWindow">
 			<div id="zoomTitle" class="center">Zoom: 1x</div>
 			<div id="zoomSlider" style="margin: 4px 8px;"></div>
-			<div class="toolbox-icon" id="toolboxBulldozer"></div>
-			<div class="toolbox-icon" id="toolboxRoad"></div>
+			<div class="toolbox-icon icon-size1" id="toolboxBulldozer"></div>
+			<div class="toolbox-icon icon-size2" id="toolboxRoad"></div>
+			<div class="toolbox-icon icon-size2" id="toolboxRail"></div>
+			<div class="toolbox-icon icon-size1" id="toolboxLine"></div>
 			<div style="clear: both;"></div>
 		</div>
 	</div>
 </div>
+
+<!-- Generate New Map Dialog -->
+<div id="generateNewMap" style="display: none;">
+	<p>
+		First we need to generate a map of the land that your new city will
+		occupy. Use the sliders below to adjust how forested your land will
+		be, how many lakes it will have and how complex the river is. Then
+		use the Generate button to see the outcome.
+	</p>
+	<table width="100%">
+		<tr>
+			<td>Forest</td>
+			<td width="50%"><div id="forestSlider"></div></td>
+		</tr>
+		<tr>
+			<td>Lakes</td>
+			<td><div id="lakesSlider"></div></td>
+		</tr>
+		<tr>
+			<td>River</td>
+			<td><div id="riverSlider"></div></td>
+		</tr>
+	</table>
+</div>
+
+<!-- Image Pre-Loads -->
 <img id="tileset1x" src="img/tileset1x.png" alt="Tile Set 1x Zoom" style="display: none;">
 <img id="tileset2x" src="img/tileset2x.png" alt="Tile Set 2x Zoom" style="display: none;">
 <img id="tileset3x" src="img/tileset3x.png" alt="Tile Set 4x Zoom" style="display: none;">
