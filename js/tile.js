@@ -186,16 +186,16 @@ Tile.prototype =
 		}
 		else if(this.line)
 		{
-			if(this.e.road ||
-				this.w.road)
+			if(this.n.line ||
+				this.s.line)
 				this.setTile(this.roadTiles[18]);
 			else
 				this.setTile(this.roadTiles[19]);
 		}
 		else if(this.rail)
 		{
-			if(this.e.road ||
-				this.w.road)
+			if(this.n.rail ||
+				this.s.rail)
 				this.setTile(this.roadTiles[20]);
 			else
 				this.setTile(this.roadTiles[21]);
@@ -291,19 +291,19 @@ Tile.prototype =
 		}
 		else if(this.line)
 		{
-			if(this.e.rail ||
-				this.w.rail)
+			if(this.s.line ||
+				this.n.line)
 				this.setTile(this.railTiles[18]);
 			else
 				this.setTile(this.railTiles[19]);
 		}
 		else if(this.road)
 		{
-			if(this.e.rail ||
-				this.w.rail)
-				this.setTile(this.railTiles[20]);
-			else
+			if(this.n.road ||
+				this.s.road)
 				this.setTile(this.railTiles[21]);
+			else
+				this.setTile(this.railTiles[20]);
 		}
 		else
 		{
@@ -396,16 +396,16 @@ Tile.prototype =
 		}
 		else if(this.rail)
 		{
-			if(this.e.line ||
-				this.w.line)
+			if(this.n.rail ||
+				this.s.rail)
 				this.setTile(this.lineTiles[18]);
 			else
 				this.setTile(this.lineTiles[19]);
 		}
 		else if(this.road)
 		{
-			if(this.e.line ||
-				this.w.line)
+			if(this.n.road ||
+				this.s.road)
 				this.setTile(this.lineTiles[20]);
 			else
 				this.setTile(this.lineTiles[21]);

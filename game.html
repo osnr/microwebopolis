@@ -38,22 +38,35 @@
 		<div id="toolboxWindow">
 			<div id="zoomTitle" class="center">Zoom: 1x</div>
 			<div id="zoomSlider" style="margin: 4px 8px;"></div>
-			<div class="toolbox-icon icon-size1" id="toolboxBulldozer"></div>
-			<div class="toolbox-icon icon-size2" id="toolboxRoad"></div>
-			<div class="toolbox-icon icon-size2" id="toolboxRail"></div>
-			<div class="toolbox-icon icon-size1" id="toolboxLine"></div>
-			<div class="toolbox-icon icon-size3" id="toolboxCoal"></div>
-			<div class="toolbox-icon icon-size3" id="toolboxNuclear"></div>
-			<div class="toolbox-icon icon-size3" id="toolboxSeaport"></div>
-			<div class="toolbox-icon icon-size3" id="toolboxStadium"></div>
-			<div class="toolbox-icon icon-size4" id="toolboxAirport"></div>
-			<div class="toolbox-icon icon-size5" id="toolboxResidential"></div>
-			<div class="toolbox-icon icon-size5" id="toolboxCommercial"></div>
-			<div class="toolbox-icon icon-size5" id="toolboxIndustrial"></div>
-			<div class="toolbox-icon icon-size1" id="toolboxPolice"></div>
-			<div class="toolbox-icon icon-size1" id="toolboxFire"></div>
-			<div class="toolbox-icon icon-size1" id="toolboxPark"></div>
-			<div style="clear: both;"></div>
+			<table class="toolbox-table">
+				<tr>
+					<td rowspan="2"><div class="toolbox-icon icon-size5" id="toolboxResidential"></div></td>
+					<td rowspan="2"><div class="toolbox-icon icon-size5" id="toolboxCommercial"></div></td>
+					<td rowspan="2"><div class="toolbox-icon icon-size5" id="toolboxIndustrial"></div></td>
+					<td colspan="2"><div class="toolbox-icon icon-size2" id="toolboxRoad"></div></td>
+				</tr>
+				<tr>
+					<td colspan="2"><div class="toolbox-icon icon-size2" id="toolboxRail"></div></td>
+				</tr>
+				<tr>
+					<td><div class="toolbox-icon icon-size1" id="toolboxBulldozer"></div></td>
+					<td><div class="toolbox-icon icon-size1" id="toolboxPark"></div></td>
+					<td><div class="toolbox-icon icon-size1" id="toolboxPolice"></div></td>
+					<td><div class="toolbox-icon icon-size1" id="toolboxFire"></div></td>
+					<td><div class="toolbox-icon icon-size1" id="toolboxLine"></div></td>
+				</tr>
+			</table>
+			<table class="toolbox-table">
+				<tr>
+					<td rowspan="2"><div class="toolbox-icon icon-size4" id="toolboxAirport"></div></td>
+					<td><div class="toolbox-icon icon-size3" id="toolboxSeaport"></div></td>
+					<td><div class="toolbox-icon icon-size3" id="toolboxStadium"></div></td>
+				</tr>
+				<tr>
+					<td><div class="toolbox-icon icon-size3" id="toolboxCoal"></div></td>
+					<td><div class="toolbox-icon icon-size3" id="toolboxNuclear"></div></td>
+				</tr>
+			</table>
 		</div>
 	</div>
 </div>

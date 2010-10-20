@@ -47,6 +47,15 @@ body, html
 	padding: 4px;
 	overflow: auto;
 }
+.toolbox-table
+{
+	width: 100%;
+}
+.toolbox-table td
+{
+	text-align: center;
+	vertical-align: middle;
+}
 #cityName
 {
 	font-size: 12pt;
@@ -77,7 +86,7 @@ body, html
 {
 	background-repeat: no-repeat;
 	cursor: pointer;
-	float: left;
+	margin: 0 auto;
 }
 .icon-size1
 {
