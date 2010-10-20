@@ -18,16 +18,19 @@
 	<script type="text/javascript" src="js/gamestate.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript" src="js/tile.js"></script>
-	<script type="text/javascript" src="js/miniMapColors.js"></script>
+	<script type="text/javascript" src="js/data.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
 <!-- Main UI -->
 <div id="cityName" class="ui-widget-header frame-title">City View</div>
 <div id="bodyWrap">
-	<canvas id="canvas" width="640" height="480">
-		<p id="noCanvasMessage">This application requires a browser that supports HTML 5. Please try Google Chrome, Fire Fox or IE 9.</p>
-	</canvas>
+	<div id="canvasContent">
+		<canvas id="canvas" width="640" height="480">
+			<p id="noCanvasMessage">This application requires a browser that supports HTML 5. Please try Google Chrome, Fire Fox or IE 9.</p>
+		</canvas>
+		<div id="priceOverlay" style="display: none;" class="ui-widget ui-widget-content"></div>
+	</div>
 	<div id="interfaceFrame">
 		<canvas id="mapCanvas" width="128" height="128">
 			<p id="noCanvasMessage">This application requires a browser that supports HTML 5. Please try Google Chrome, Fire Fox or IE 9.</p>
@@ -39,6 +42,17 @@
 			<div class="toolbox-icon icon-size2" id="toolboxRoad"></div>
 			<div class="toolbox-icon icon-size2" id="toolboxRail"></div>
 			<div class="toolbox-icon icon-size1" id="toolboxLine"></div>
+			<div class="toolbox-icon icon-size3" id="toolboxCoal"></div>
+			<div class="toolbox-icon icon-size3" id="toolboxNuclear"></div>
+			<div class="toolbox-icon icon-size3" id="toolboxSeaport"></div>
+			<div class="toolbox-icon icon-size3" id="toolboxStadium"></div>
+			<div class="toolbox-icon icon-size4" id="toolboxAirport"></div>
+			<div class="toolbox-icon icon-size5" id="toolboxResidential"></div>
+			<div class="toolbox-icon icon-size5" id="toolboxCommercial"></div>
+			<div class="toolbox-icon icon-size5" id="toolboxIndustrial"></div>
+			<div class="toolbox-icon icon-size1" id="toolboxPolice"></div>
+			<div class="toolbox-icon icon-size1" id="toolboxFire"></div>
+			<div class="toolbox-icon icon-size1" id="toolboxPark"></div>
 			<div style="clear: both;"></div>
 		</div>
 	</div>
@@ -69,14 +83,47 @@
 </div>
 
 <!-- Image Pre-Loads -->
-<img id="tileset1x" src="img/tileset1x.png" alt="Tile Set 1x Zoom" style="display: none;">
-<img id="tileset2x" src="img/tileset2x.png" alt="Tile Set 2x Zoom" style="display: none;">
-<img id="tileset3x" src="img/tileset3x.png" alt="Tile Set 4x Zoom" style="display: none;">
-<img id="tileset4x" src="img/tileset4x.png" alt="Tile Set 4x Zoom" style="display: none;">
+<img id="tileset1x" src="img/tilesetQuarter.png" alt="Tile Set 1/4x Zoom" style="display: none;">
+<img id="tileset2x" src="img/tilesetHalf.png" alt="Tile Set 1/2x Zoom" style="display: none;">
+<img id="tileset3x" src="img/tileset1x.png" alt="Tile Set 1x Zoom" style="display: none;">
+<img id="tileset4x" src="img/tileset2x.png" alt="Tile Set 2x Zoom" style="display: none;">
+<img id="tileset5x" src="img/tileset4x.png" alt="Tile Set 4x Zoom" style="display: none;">
+<img src="img/icairp.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icairphi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icchlk.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icchlkhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/iccoal.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/iccoalhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/iccom.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/iccomhi.png" alt="Icon Pre-Load" style="display: none;">
 <img src="img/icdozr.png" alt="Icon Pre-Load" style="display: none;">
 <img src="img/icdozrhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icersr.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icersrhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icfire.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icfirehi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icind.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icindhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icnuc.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icnuchi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icpark.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icparkhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icpol.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icpolhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icqry.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icqryhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icrail.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icrailhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icres.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icreshi.png" alt="Icon Pre-Load" style="display: none;">
 <img src="img/icroad.png" alt="Icon Pre-Load" style="display: none;">
 <img src="img/icroadhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icseap.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icseaphi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icstad.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icstadhi.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icwire.png" alt="Icon Pre-Load" style="display: none;">
+<img src="img/icwirehi.png" alt="Icon Pre-Load" style="display: none;">
 
 </body>
 </html>

@@ -11,6 +11,7 @@ function Tile(tile, groundType)
 	this.s = null;
 	this.e = null;
 	this.w = null;
+	this.zoneTileOffset = 0;
 }
 Tile.prototype =
 {
@@ -27,14 +28,20 @@ Tile.prototype =
 	{
 		var cost = 0;
 		
-		// TODO Support Structures
+		// TODO Support Zones
+		if(this.zone != "none")
+			return cost;
 		
 		// Support water
-		if(this.groundType == "water" &&
-			(this.road ||
-			this.rail ||
-			this.line))
-			cost += game.rules.cost.bulldozeBridge;
+		if(this.groundType == "water")
+		{
+			if(this.road ||
+				this.rail ||
+				this.line)
+				cost += game.rules.cost.bulldozeBridge;
+			else
+				return cost;
+		}
 		else if(this.tile != 0)
 			cost += game.rules.cost.bulldoze;
 		
@@ -55,16 +62,19 @@ Tile.prototype =
 			this.line = false;
 			this.hBridge = false;
 			this.zone = "none";
-			this.n.setRoadTile();
-			this.s.setRoadTile();
-			this.e.setRoadTile();
-			this.w.setRoadTile();
-			this.n.setForestTile(true);
-			this.s.setForestTile(true);
-			this.e.setForestTile(true);
-			this.w.setForestTile(true);
+			this.n.resetAllTiles();
+			this.s.resetAllTiles();
+			this.e.resetAllTiles();
+			this.w.resetAllTiles();
 		}
 		return cost;
+	},
+	resetAllTiles: function()
+	{
+		this.setRoadTile();
+		this.setRailTile();
+		this.setLineTile();
+		this.setForestTile(true);
 	},
 	// Attempts to auto-bulldoze a tile, returns the cost
 	autoBulldoze: function(pretend, dozeLines)
@@ -76,6 +86,28 @@ Tile.prototype =
 			(this.line && !dozeLines))
 			return cost;
 		return this.bulldoze(pretend);
+	},
+	// Build a zone, returns the cost if any, or -1 if unable to build
+	buildZone: function(zoneType, tileOffset, pretend)
+	{
+		var cost = 0;
+		
+		// If this isn't ground and we can't auto-bulldoze it we can't build
+		if(this.tile != 0)
+		{
+			cost += this.autoBulldoze(pretend, true)
+			if(cost <= 0)
+				return -1;
+		}
+		
+		if(!pretend)
+		{
+			this.zone = zoneType;
+			this.zoneTileOffset = tileOffset;
+			this.setTile(data.zoneInfo[zoneType].baseTile + this.zoneTileOffset);
+		}
+		
+		return cost;
 	},
 	// Build a road
 	buildRoad: function(pretend)
@@ -381,13 +413,17 @@ Tile.prototype =
 		else
 		{
 			var idx = 0;
-			if(this.n.line)
+			if(this.n.line ||
+				this.n.zone != "none")
 				idx |= 1;
-			if(this.s.line)
+			if(this.s.line ||
+				this.s.zone != "none")
 				idx |= 2;
-			if(this.e.line)
+			if(this.e.line ||
+				this.e.zone != "none")
 				idx |= 4;
-			if(this.w.line)
+			if(this.w.line ||
+				this.w.zone != "none")
 				idx |= 8;
 			this.setTile(this.lineTiles[idx]);
 		}
@@ -592,22 +628,3 @@ Tile.prototype =
 		2		// WESN
 	]	
 };
-/*
-			// WSEN
-      0,	// xxxx
-      0,	// xxxN
-      0,	// xxEx
-      34,	// xxEN
-      0,	// xSxx
-      0,	// xSxN
-      36,	// xSEx
-      35,	// xSEN
-      0,	// Wxxx
-      32,	// WxxN
-      0,	// WxEx
-      33,	// WxEN
-      30,	// WSxx
-      31,	// WSxN
-      29,	// WSEx
-      37,	// WSEN
-      */

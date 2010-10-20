@@ -34,6 +34,13 @@ Map.prototype =
 		canvas.miniMapUpdateRect(this.viewOffsetX, this.viewOffsetY,
 			canvas.tilesWide, canvas.tilesHigh);
 	},
+	mapToScreenLocation: function(x, y)
+	{
+		return {
+			x: (x - this.viewOffsetX) * canvas.tileWidth,
+			y: (y - this.viewOffsetY) * canvas.tileHeight
+		};
+	},
 	screenToMapLocation: function(x, y)
 	{
 		var ret =
@@ -53,8 +60,12 @@ Map.prototype =
 	},
 	highlightRect: function(x, y, w, h, color)
 	{
-		canvas.highlightRect(x - this.viewOffsetX, y - this.viewOffsetY,
-			w, h, color);
+		var left = x < 0 ? 0 : x;
+		var right = x + w > this.width ? this.width : x + w;
+		var top = y < 0 ? 0 : y;
+		var bottom = y + h > this.height ? this.height : y + h;
+		canvas.highlightRect(left - this.viewOffsetX, top - this.viewOffsetY,
+			right - left, bottom - top, color);
 	},
 	draw: function()
 	{
@@ -96,15 +107,19 @@ Map.prototype =
 	drawRect: function(x, y, w, h)
 	{
 		var ix, iy, tile, dataOfs;
+		var minX = x < 0 ? 0 : x;
+		minX = minX > this.width ? this.width : minX;
+		var minY = y < 0 ? 0 : y;
+		minY = minY > this.height ? this.height : minY;
 		var maxX = x + w;
 		var maxY = y + h;
-		maxX = maxX >= this.width ? this.width - 1 : maxX;
-		maxY = maxY >= this.height ? this.height - 1 : maxY;
+		maxX = maxX >= this.width ? this.width : maxX;
+		maxY = maxY >= this.height ? this.height : maxY;
 		
-		for(iy = y; iy < maxY; ++iy)
+		for(iy = minY; iy < maxY; ++iy)
 		{
-			dataOfs = iy * this.width + x;
-			for(ix = x; ix < maxX; ++ix)
+			dataOfs = iy * this.width + minX;
+			for(ix = minX; ix < maxX; ++ix)
 			{
 				tile = this.tiles[dataOfs];
 				canvas.blitTile(tile.tile, ix - this.viewOffsetX,
@@ -466,6 +481,68 @@ Map.prototype =
 			this.drawTile(x, y + 1);
 			this.drawTile(x, y - 1);
 		}
+		return cost;
+	},
+	// Build a zone from a center tile. Returns the cost if any
+	buildZone: function(x, y, pretend, zoneType)
+	{
+		var cost = 0;
+		var info = data.zoneInfo[zoneType];
+		
+		// Bounds check, the entire zone must be on the map
+		var left = x + info.ofsLeft;
+		var top = y + info.ofsTop;
+		var right = left + info.width;
+		var bottom = top + info.height;
+		if(left < 0 ||
+			top < 0 ||
+			right > this.width ||
+			bottom > this.height)
+			return cost;
+		
+		// Try to zone off all of the tiles to make sure it will work
+		var ix, iy, tile;
+		for(iy = top; iy < bottom; ++iy)
+		{
+			for(ix = left; ix < right; ++ix)
+			{
+				tile = this.tiles[iy * this.width + ix];
+				if(tile.buildZone(zoneType, (iy - top) * info.width + (ix - left), true) < 0)
+					return cost;
+			}
+		}
+		
+		// Actually zone off all of the tiles
+		for(iy = top; iy < bottom; ++iy)
+		{
+			for(ix = left; ix < right; ++ix)
+			{
+				tile = this.tiles[iy * this.width + ix];
+				cost += tile.buildZone(zoneType, (iy - top) * info.width + (ix - left), pretend);
+			}
+		}
+		
+		// Walk the edges and reset tiles and redraw the whole area
+		if(!pretend)
+		{
+			for(ix = left - 1; ix <= right; ++ix)
+			{
+				if(top > 0)
+					this.tiles[(top - 1) * this.width + ix].resetAllTiles();
+				if(top < this.height - 1)
+					this.tiles[(top + 1) * this.width + ix].resetAllTiles();
+			}
+			for(iy = top; iy < bottom; ++iy)
+			{
+				if(left > 0)
+					this.tiles[top * this.width + ix - 1].resetAllTiles();
+				if(left < this.width - 1)
+					this.tiles[top * this.width + ix + 1].resetAllTiles();
+			}
+			this.drawRect(left - 1, top - 1, info.width + 2, info.height + 2);
+		}
+		
+		cost += game.rules.cost.zones[zoneType];
 		return cost;
 	}
 };

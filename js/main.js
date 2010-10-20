@@ -5,6 +5,7 @@ var game =
 	rules: null,
 	init: function()
 	{
+		data.init();
 		this.rules = rules.base;
 		ui.init();
 		if(!canvas.init())

@@ -23,3 +23,4 @@ Color.purple = new Color(255, 0, 255);
 Color.teal = new Color(0, 255, 255);
 Color.white = new Color(255, 255, 255);
 Color.gray = new Color(127, 127, 127);
+Color.orange = new Color(255, 127, 0);

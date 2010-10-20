@@ -14,16 +14,33 @@ namespace TileSetDoubler
 		{
 			System.Console.WriteLine(@"
 Usage: TileSetDoubler input_file output_file1x output_file2x output_file3x
-       output_file4x
+       output_file4x output_file_half output_file_quarter
 
-Creates a double-sized copy of input_file and saves this to output_file. A
-copy of input_file with alpha correction is saved to alpha_file. In this
-process, any pixel matching the bottom-right pixel will be made transparent.
+Resizes a tileset to a bunch of different sizes.
 ");
+		}
+		static void HalfReduce(Bitmap input, Bitmap output)
+		{
+			for(int iy = 0; iy < input.Height; iy += 2)
+			{
+				for(int ix = 0; ix < input.Width; ix += 2)
+				{
+					int r, g, b;
+					Color c = input.GetPixel(ix, iy);
+					r = c.R; g = c.G; b = c.B;
+					c = input.GetPixel(ix + 1, iy);
+					r += c.R; g += c.G; b += c.B;
+					c = input.GetPixel(ix, iy + 1);
+					r += c.R; g += c.G; b += c.B;
+					c = input.GetPixel(ix + 1, iy + 1);
+					r += c.R; g += c.G; b += c.B;
+					output.SetPixel(ix / 2, iy / 2, Color.FromArgb(255, r / 4, g / 4, b / 4));
+				}
+			}
 		}
 		static int Main(string[] args)
 		{
-			if(args.Length != 5)
+			if(args.Length != 7)
 			{
 				Help();
 				return 1;
@@ -34,6 +51,8 @@ process, any pixel matching the bottom-right pixel will be made transparent.
 			Bitmap output2x = new Bitmap(input.Width * 2, input.Height * 2, PixelFormat.Format32bppArgb);
 			Bitmap output3x = new Bitmap(input.Width * 3, input.Height * 3, PixelFormat.Format32bppArgb);
 			Bitmap output4x = new Bitmap(input.Width * 4, input.Height * 4, PixelFormat.Format32bppArgb);
+			Bitmap outputHalf = new Bitmap(input.Width / 2, input.Height / 2, PixelFormat.Format32bppArgb);
+			Bitmap outputQuarter = new Bitmap(input.Width / 4, input.Height / 4, PixelFormat.Format32bppArgb);
 			Color transparentPixel = input.GetPixel(input.Width - 1, input.Height - 1);
 			
 			for(int iy = 0; iy < input.Height; ++iy)
@@ -84,6 +103,11 @@ process, any pixel matching the bottom-right pixel will be made transparent.
 			output2x.Save(args[2]);
 			output3x.Save(args[3]);
 			output4x.Save(args[4]);
+
+			HalfReduce(input, outputHalf);
+			HalfReduce(outputHalf, outputQuarter);
+			outputHalf.Save(args[5]);
+			outputQuarter.Save(args[6]);
 
 			return 0;
 		}

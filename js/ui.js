@@ -35,23 +35,89 @@ var ui =
 			.data("iconlow", "img/icwire.png")
 			.data("iconhi", "img/icwirehi.png")
 			.click(this.toolboxButton);
+		$("#toolboxCoal")
+			.data("tool", "zone4x4")
+			.data("param", "coal")
+			.data("iconlow", "img/iccoal.png")
+			.data("iconhi", "img/iccoalhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxNuclear")
+			.data("tool", "zone4x4")
+			.data("param", "nuclear")
+			.data("iconlow", "img/icnuc.png")
+			.data("iconhi", "img/icnuchi.png")
+			.click(this.toolboxButton);
+		$("#toolboxSeaport")
+			.data("tool", "zone4x4")
+			.data("param", "seaport")
+			.data("iconlow", "img/icseap.png")
+			.data("iconhi", "img/icseaphi.png")
+			.click(this.toolboxButton);
+		$("#toolboxStadium")
+			.data("tool", "zone4x4")
+			.data("param", "stadium")
+			.data("iconlow", "img/icstad.png")
+			.data("iconhi", "img/icstadhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxAirport")
+			.data("tool", "zone6x6")
+			.data("param", "airport")
+			.data("iconlow", "img/icairp.png")
+			.data("iconhi", "img/icairphi.png")
+			.click(this.toolboxButton);
+		$("#toolboxResidential")
+			.data("tool", "zone3x3")
+			.data("param", "residential")
+			.data("iconlow", "img/icres.png")
+			.data("iconhi", "img/icreshi.png")
+			.click(this.toolboxButton);
+		$("#toolboxCommercial")
+			.data("tool", "zone3x3")
+			.data("param", "commercial")
+			.data("iconlow", "img/iccom.png")
+			.data("iconhi", "img/iccomhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxIndustrial")
+			.data("tool", "zone3x3")
+			.data("param", "industrial")
+			.data("iconlow", "img/icind.png")
+			.data("iconhi", "img/icindhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxPolice")
+			.data("tool", "zone3x3")
+			.data("param", "police")
+			.data("iconlow", "img/icpol.png")
+			.data("iconhi", "img/icpolhi.png")
+			.click(this.toolboxButton);
+		$("#toolboxFire")
+			.data("tool", "zone3x3")
+			.data("param", "fire")
+			.data("iconlow", "img/icfire.png")
+			.data("iconhi", "img/icfirehi.png")
+			.click(this.toolboxButton);
+		$("#toolboxPark")
+			.data("tool", "zone1x1")
+			.data("param", "park")
+			.data("iconlow", "img/icpark.png")
+			.data("iconhi", "img/icparkhi.png")
+			.click(this.toolboxButton);
 		$(".toolbox-icon").each(function()
 		{
-			$(this).css("background-image", "url('" + $(this).data("iconhi")
+			$(this).css("background-image", "url('" + $(this).data("iconlow")
 				+ "')");
 		});
 		this.currentTool = this.toolDefs.bulldozer;
 		$("#toolboxBulldozer")
 			.css("background-image", "url('" +
-				$("#toolboxBulldozer").data("iconlow") + "')");
+				$("#toolboxBulldozer").data("iconhi") + "')");
 		
 		// Other toolbox components
 		$("#zoomSlider")
 			.slider({
 				min: 1,
-				max: 4,
+				max: 5,
 				range: "min",
-				value: 1,
+				value: 3,
 				slide: this.zoomSlider
 			});
 		
@@ -166,21 +232,29 @@ var ui =
 	toolHover: function(x, y)
 	{
 		var cost = this.currentTool.doIt(x, y, true);
+		var left = x - ((this.currentTool.width / 2) | 0);
+		var top = y - ((this.currentTool.height / 2) | 0);
+		var screenPos = game.map.mapToScreenLocation(left, top);
+		$("#priceOverlay")
+			.css("display", "block")
+			.css("left", screenPos.x)
+			.css("top", screenPos.y - 40)
+			.text("$" + cost);
+		game.map.highlightRect(left, top, this.currentTool.width,
+			this.currentTool.height, this.currentTool.hoverColor);
+
 		if(cost > 0)
-		{
-			// TODO Add price display
-			game.map.highlightRect(x, y, this.currentTool.width,
-				this.currentTool.height, this.currentTool.hoverColor);
 			$("#canvas").css("cursor", "pointer");
-		}
 		else
-		{
 			$("#canvas").css("cursor", "not-allowed");
-		}
 	},
 	toolBlur: function(x, y)
 	{
-		game.map.drawRect(x, y, this.currentTool.width,
+		var left = x - ((this.currentTool.width / 2) | 0);
+		var top = y - ((this.currentTool.height / 2) | 0);
+		$("#priceOverlay")
+			.css("display", "none");
+		game.map.drawRect(left, top, this.currentTool.width,
 			this.currentTool.height);
 	},
 	toolDo: function(x, y)
@@ -194,25 +268,40 @@ var ui =
 	{
 		var target = $(e.currentTarget);
 		ui.currentTool = ui.toolDefs[target.data("tool")];
+		ui.currentTool.param = target.data("param");
 		$(".toolbox-icon").each(function()
 		{
-			$(this).css("background-image", "url('" + $(this).data("iconhi") + "')");
+			$(this).css("background-image", "url('" + $(this).data("iconlow") + "')");
 		});			
-		target.css("background-image", "url('" + target.data("iconlow") + "')");
+		target.css("background-image", "url('" + target.data("iconhi") + "')");
 	},
 	zoomSlider: function(e, ui)
 	{
 		var zoomLevel = ui.value;
 		canvas.zoom(zoomLevel);
 		game.redrawEverything();
+		if(zoomLevel == 1)
+			zoomLevel = "1/4";
+		else if(zoomLevel == 2)
+			zoomLevel = "1/2";
+		else
+			zoomLevel -= 2;
+		if(zoomLevel == 3)
+			zoomLevel++;
 		$("#zoomTitle").text("Zoom: " + zoomLevel + "x");
 	},
 	update: function()
 	{
 		var zoomLevel = canvas.zoomLevel;
-		if(zoomLevel >= 4)
-			--zoomLevel;
 		$("#zoomSlider").slider("option", "value", zoomLevel);
+		if(zoomLevel == 1)
+			zoomLevel = "1/4";
+		else if(zoomLevel == 2)
+			zoomLevel = "1/2";
+		else
+			zoomLevel -= 2;
+		if(zoomLevel == 3)
+			zoomLevel++;
 		$("#zoomTitle").text("Zoom: " + zoomLevel + "x");
 	},
 	toolDefs:
@@ -256,6 +345,46 @@ var ui =
 			{
 				return game.map.buildLine(x, y, pretend);
 			}
-		}
+		},
+		zone1x1:
+		{
+			width: 1,
+			height: 1,
+			hoverColor: Color.orange,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildZone(x, y, pretend, this.param);
+			}
+		},
+		zone3x3:
+		{
+			width: 3,
+			height: 3,
+			hoverColor: Color.orange,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildZone(x, y, pretend, this.param);
+			}
+		},
+		zone4x4:
+		{
+			width: 4,
+			height: 4,
+			hoverColor: Color.orange,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildZone(x, y, pretend, this.param);
+			}
+		},
+		zone6x6:
+		{
+			width: 6,
+			height: 6,
+			hoverColor: Color.orange,
+			doIt: function(x, y, pretend)
+			{
+				return game.map.buildZone(x, y, pretend, this.param);
+			}
+		}		
 	}
 };

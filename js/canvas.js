@@ -16,7 +16,7 @@ var canvas =
 	tileHeightBase: 16,
 	tilesWide: 0,
 	tilesHigh: 0,
-	zoomLevel: 1,
+	zoomLevel: 3,
 	miniMapFlushDelayMs: 200,
 	miniMapDirty: false,
 	miniMapRect:
@@ -73,11 +73,14 @@ var canvas =
 		this.tilesetImages[2] = document.getElementById("tileset2x");
 		this.tilesetImages[3] = document.getElementById("tileset3x");
 		this.tilesetImages[4] = document.getElementById("tileset4x");
-		this.zoom(1);
+		this.tilesetImages[5] = document.getElementById("tileset5x");
+		this.zoom(3);
 		
 		return this.tilesetImages[1] &&
 			this.tilesetImages[2] &&
-			this.tilesetImages[4];
+			this.tilesetImages[3] &&
+			this.tilesetImages[4] &&
+			this.tilesetImages[5];
 	},
 	miniMapUpdateRect: function(x, y, w, h)
 	{
@@ -97,7 +100,7 @@ var canvas =
 	miniMapTile: function(tile, x, y)
 	{
 		var baseOfs = ((y * 128) + x) * 4;
-		var color = miniMapColors[tile];
+		var color = data.miniMapColors[tile];
 		if(!color)
 			return;
 		this.mmImageData.data[baseOfs + 0] = color.r;
@@ -119,17 +122,29 @@ var canvas =
 		this.height = height;
 		this.canvas.width = width;
 		this.canvas.height = height;
-		this.zoom(this.zoomLevel);
+		this.zoom();
 	},
 	zoom: function(zoom)
 	{
-		if(zoom < 1 ||
-			zoom > 4)
-			throw new Error("Invalid zoom level " + zoom);
-		this.zoomLevel = zoom;
-		this.tileWidth = this.tileWidthBase * this.zoomLevel;
-		this.tileHeight = this.tileHeightBase * this.zoomLevel;
-		this.tileset = this.tilesetImages[this.zoomLevel];
+		var zoomFactor = 0;
+		if(zoom !== undefined)
+		{
+			this.zoomLevel = zoom;
+			this.tileset = this.tilesetImages[zoom];
+		}
+		switch(this.zoomLevel)
+		{
+			case 1: zoomFactor = 0.25; break;
+			case 2: zoomFactor = 0.5; break;
+			case 3: zoomFactor = 1; break;
+			case 4: zoomFactor = 2; break;
+			case 5: zoomFactor = 4; break;
+			default:
+				throw new Error("Invalid zoom level " + zoom);
+				break;
+		}
+		this.tileWidth = (this.tileWidthBase * zoomFactor) | 0;
+		this.tileHeight = (this.tileHeightBase * zoomFactor) | 0;
 		this.tilesWide = (this.width / this.tileWidth) | 0;
 		if(this.width % this.tileWidth > 0)
 			++this.tilesWide;
@@ -157,7 +172,7 @@ var canvas =
 		w *= this.tileWidth;
 		h *= this.tileHeight;
 		this.context.strokeStyle = color.rgbString();
-		this.context.fillStyle = color.rgbaString(0.25);
+		this.context.fillStyle = color.rgbaString(0.5);
 		this.context.fillRect(x, y, w, h);
 		this.context.strokeRect(x + 1, y + 1, w - 2, h - 2);
 	}
