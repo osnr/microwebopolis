@@ -5,16 +5,65 @@ function Tile(tile, groundType)
 	this.road = false;
 	this.rail = false;
 	this.line = false;
-	this.zone = "none";
+	this.zone = null;
 	this.hBridge = false;
+	this.rubble = true;
+	
+	// Do not save fields below this line in the save state
 	this.n = null;
 	this.s = null;
 	this.e = null;
 	this.w = null;
-	this.zoneTileOffset = 0;
+	this.powered = false;
+	this.scanned = false;
 }
 Tile.prototype =
 {
+	// Get the saved state representation of this tile
+	getSaveState: function()
+	{
+		// Here our goal is to squeeze as much data as possible into as few
+		// bits as we can, then encode the data in base 36. Why base 36?
+		// because it is natively supported by the browser, and in most cases
+		// is a lot faster than doing base 64 encoding in script.
+		// Note that the encoding is done in map.getSaveState() so we can do
+		// RLE compression without having to decode and re-encode.
+		var ret = this.tile & 0x007ff;
+		if(this.groundType == "ground")
+			ret |= 0x00800;
+		else if(this.groundType == "forest")
+			ret |= 0x01000;
+		if(this.road)
+			ret |= 0x02000;
+		if(this.rail)
+			ret |= 0x04000;
+		if(this.line)
+			ret |= 0x08000;
+		if(this.hBridge)
+			ret |= 0x10000;
+		if(this.rubble)
+			ret |= 0x20000;
+		// BIT 18 UNUSED
+		// BIT 19 RESEARVED FOR RLE ENCODE BIT
+		return ret;
+	},
+	// Load values from the saved state representation of this tile
+	loadSaveState: function(state)
+	{
+		this.setTile(state & 0x007ff);
+		if((state & 0x00800) > 0)
+			this.groundType = "ground";
+		else if((state & 0x01000) > 0)
+			this.groundType = "forest";
+		else
+			this.groundType = "water";
+		this.road = (state & 0x02000) > 0 ? true : false;
+		this.rail = (state & 0x04000) > 0 ? true : false;
+		this.line = (state & 0x08000) > 0 ? true : false;
+		this.hBridge = (state & 0x10000) > 0 ? true : false;
+		this.rubble = (state & 0x20000) > 0 ? true : false;
+		this.setZone(null);
+	},
 	// Set the tile graphic of a tile, automatically updates the mini-map
 	setTile: function(tile)
 	{
@@ -23,14 +72,32 @@ Tile.prototype =
 		if(!this.isNullTile)
 			canvas.miniMapTile(this.tile, this.x, this.y);
 	},
+	// Set the zone of this tile
+	setZone: function(zone)
+	{
+		this.zone = zone;
+	},
+	// Make this zone rubble. DOES NOT CHANGE ZONE!
+	makeRubble: function()
+	{
+		this.road = this.rail = this.line = this.hBridge = false;
+		if(this.groundType != "water")
+		{
+			this.groundType = "ground";
+			this.rubble = true;
+			this.setTile(rand(3) + 53);
+		}
+	},
 	// Bulldoze a tile, returns the cost
 	bulldoze: function(pretend)
 	{
 		var cost = 0;
 		
-		// TODO Support Zones
-		if(this.zone != "none")
-			return cost;
+		// Support Zones
+		if(this.zone)
+		{
+			return this.zone.bulldoze(pretend);
+		}
 		
 		// Support water
 		if(this.groundType == "water")
@@ -61,7 +128,7 @@ Tile.prototype =
 			this.rail = false;
 			this.line = false;
 			this.hBridge = false;
-			this.zone = "none";
+			this.setZone(null);
 			this.n.resetAllTiles();
 			this.s.resetAllTiles();
 			this.e.resetAllTiles();
@@ -80,7 +147,7 @@ Tile.prototype =
 	autoBulldoze: function(pretend, dozeLines)
 	{
 		var cost = 0;
-		if(this.zone != "none" ||
+		if(this.zone ||
 			this.rail ||
 			this.road ||
 			(this.line && !dozeLines))
@@ -88,7 +155,7 @@ Tile.prototype =
 		return this.bulldoze(pretend);
 	},
 	// Build a zone, returns the cost if any, or -1 if unable to build
-	buildZone: function(zoneType, tileOffset, pretend)
+	buildZone: function(zone, pretend)
 	{
 		var cost = 0;
 		
@@ -102,9 +169,7 @@ Tile.prototype =
 		
 		if(!pretend)
 		{
-			this.zone = zoneType;
-			this.zoneTileOffset = tileOffset;
-			this.setTile(data.zoneInfo[zoneType].baseTile + this.zoneTileOffset);
+			this.setZone(zone);
 		}
 		
 		return cost;
@@ -119,7 +184,7 @@ Tile.prototype =
 		// tile already has a rail and a line.
 		if(this.road ||
 			(this.rail && this.line) ||
-			this.zone != "none")
+			this.zone)
 			return cost;
 		
 		// Handle bridges
@@ -224,7 +289,7 @@ Tile.prototype =
 		// tile already has a road and a line.
 		if(this.rail ||
 			(this.road && this.line) ||
-			this.zone != "none")
+			this.zone)
 			return cost;
 		
 		// Handle bridges
@@ -329,7 +394,7 @@ Tile.prototype =
 		// tile already has a road and a rail.
 		if(this.line ||
 			(this.rail && this.road) ||
-			this.zone != "none")
+			this.zone)
 			return cost;
 		
 		// Handle bridges
@@ -414,16 +479,16 @@ Tile.prototype =
 		{
 			var idx = 0;
 			if(this.n.line ||
-				this.n.zone != "none")
+				this.n.zone)
 				idx |= 1;
 			if(this.s.line ||
-				this.s.zone != "none")
+				this.s.zone)
 				idx |= 2;
 			if(this.e.line ||
-				this.e.zone != "none")
+				this.e.zone)
 				idx |= 4;
 			if(this.w.line ||
-				this.w.zone != "none")
+				this.w.zone)
 				idx |= 8;
 			this.setTile(this.lineTiles[idx]);
 		}

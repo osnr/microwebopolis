@@ -25,16 +25,19 @@ Resizes a tileset to a bunch of different sizes.
 			{
 				for(int ix = 0; ix < input.Width; ix += 2)
 				{
-					int r, g, b;
+					int a, r, g, b, denom;
+					denom = a = r = g = b = 0;
 					Color c = input.GetPixel(ix, iy);
-					r = c.R; g = c.G; b = c.B;
+					a += c.A; if(c.A == 255) { r += c.R; g += c.G; b += c.B; ++denom; }
 					c = input.GetPixel(ix + 1, iy);
-					r += c.R; g += c.G; b += c.B;
+					a += c.A; if(c.A == 255) { r += c.R; g += c.G; b += c.B; ++denom; }
 					c = input.GetPixel(ix, iy + 1);
-					r += c.R; g += c.G; b += c.B;
+					a += c.A; if(c.A == 255) { r += c.R; g += c.G; b += c.B; ++denom; }
 					c = input.GetPixel(ix + 1, iy + 1);
-					r += c.R; g += c.G; b += c.B;
-					output.SetPixel(ix / 2, iy / 2, Color.FromArgb(255, r / 4, g / 4, b / 4));
+					a += c.A; if(c.A == 255) { r += c.R; g += c.G; b += c.B; ++denom; }
+					if(denom < 1)
+						denom = 1;
+					output.SetPixel(ix / 2, iy / 2, Color.FromArgb(a / 4, r / denom, g / denom, b / denom));
 				}
 			}
 		}
@@ -104,7 +107,7 @@ Resizes a tileset to a bunch of different sizes.
 			output3x.Save(args[3]);
 			output4x.Save(args[4]);
 
-			HalfReduce(input, outputHalf);
+			HalfReduce(output1x, outputHalf);
 			HalfReduce(outputHalf, outputQuarter);
 			outputHalf.Save(args[5]);
 			outputQuarter.Save(args[6]);

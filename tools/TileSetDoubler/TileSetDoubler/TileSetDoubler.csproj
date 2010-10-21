@@ -57,4 +57,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)..\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

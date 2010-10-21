@@ -120,6 +120,9 @@ var ui =
 				value: 3,
 				slide: this.zoomSlider
 			});
+		$("#saveButton")
+			.button()
+			.click(this.saveButton);
 		
 		// City view canvas
 		$("#canvas")
@@ -135,7 +138,11 @@ var ui =
 			.mouseup(this.mapMouseUp)
 			.mouseout(this.mapMouseOut);
 		
-		dialogs.init();
+		dialog.init();
+	},
+	saveButton: function(e, ui)
+	{
+		game.save();
 	},
 	resize: function()
 	{

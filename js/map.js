@@ -2,9 +2,16 @@ function Map(width, height, genParams)
 {
 	var i, ix, iy, tile;
 	
+	// !!!ATTENTION!!! SAVESTATE
+	// The only supported width and height are 128. If this needs to be
+	// changed we have to change the game.init and game.load functions to take
+	// into account the size of the new maps, the generateMap dialog to allow
+	// us to select a map size, and we will need to modify the Zone object's
+	// save state format if the height or width exceed 256.
 	this.width = width;
 	this.height = height;
 	this.tiles = [];
+	this.zones = [];
 	
 	// Generate map
 	this.generateMap(100, 5, 50, false);
@@ -15,6 +22,14 @@ Map.prototype =
 	viewOffsetY: 0,
 	centerX: 64,
 	centerY: 64,
+	rect:
+	{
+		x: 0,
+		y: 0,
+		w: 0,
+		h: 0,
+		color: null
+	},
 	panView: function(xOfs, yOfs)
 	{
 		this.centerX += xOfs;
@@ -60,12 +75,23 @@ Map.prototype =
 	},
 	highlightRect: function(x, y, w, h, color)
 	{
-		var left = x < 0 ? 0 : x;
-		var right = x + w > this.width ? this.width : x + w;
-		var top = y < 0 ? 0 : y;
-		var bottom = y + h > this.height ? this.height : y + h;
-		canvas.highlightRect(left - this.viewOffsetX, top - this.viewOffsetY,
-			right - left, bottom - top, color);
+		if(x !== undefined)
+		{
+			this.rect.x = x;
+			this.rect.y = y;
+			this.rect.w = w;
+			this.rect.h = h;
+			this.rect.color = color;
+		}
+		if(this.rect.color)
+		{
+			var left = this.rect.x < 0 ? 0 : this.rect.x;
+			var right = this.rect.x + this.rect.w > this.width ? this.width : this.rect.x + this.rect.w;
+			var top = this.rect.y < 0 ? 0 : this.rect.y;
+			var bottom = this.rect.y + this.rect.h > this.height ? this.height : this.rect.y + this.rect.h;
+			canvas.highlightRect(left - this.viewOffsetX, top - this.viewOffsetY,
+				right - left, bottom - top, this.rect.color);
+		}
 	},
 	draw: function()
 	{
@@ -89,9 +115,16 @@ Map.prototype =
 				tile = this.tiles[dataOfs];
 				canvas.blitTile(tile.tile, ix - this.viewOffsetX,
 					iy - this.viewOffsetY);
+				
+				// No power icon
+				if((tile.line || tile.zone) && !tile.powered)
+					canvas.blitTile(827, ix - this.viewOffsetX,
+						iy - this.viewOffsetY);
+				
 				++dataOfs;
 			}
 		}
+		this.highlightRect();
 	},
 	drawTile: function(x, y)
 	{
@@ -102,6 +135,11 @@ Map.prototype =
 			return;
 		var tile = this.tiles[y * this.width + x];
 		canvas.blitTile(tile.tile, x - this.viewOffsetX,
+			y - this.viewOffsetY);
+				
+		// No power icon
+		if((tile.line || tile.zone) && !tile.powered)
+			canvas.blitTile(827, x - this.viewOffsetX,
 			y - this.viewOffsetY);
 	},
 	drawRect: function(x, y, w, h)
@@ -124,6 +162,12 @@ Map.prototype =
 				tile = this.tiles[dataOfs];
 				canvas.blitTile(tile.tile, ix - this.viewOffsetX,
 					iy - this.viewOffsetY);
+				
+				// No power icon
+				if((tile.line || tile.zone) && !tile.powered)
+					canvas.blitTile(827, ix - this.viewOffsetX,
+						iy - this.viewOffsetY);
+				
 				++dataOfs;
 			}
 		}
@@ -168,31 +212,6 @@ Map.prototype =
 			}
 		}
 		return count;
-	},
-	// Auto-bulldoze applicable tiles and return the cost if any
-	autoBulldoze: function(x, y, w, h, pretend)
-	{
-		var ix, iy, tile, cost = 0;
-		
-		for(iy = y; iy < y + h; ++iy)
-		{
-			for(ix = x; ix < x + w; ++ix)
-			{
-				tile = this.tiles[iy * this.width + ix];
-				if(!tile ||
-					tile.road ||
-					tile.rail ||
-					tile.zone != "none")
-					continue;
-				if(tile.groundType == "forest" ||
-					tile.line)
-				{
-					if(tile.bulldoze(pretend))
-						cost += game.rules.cost.bulldoze;
-				}
-			}
-		}
-		return cost;
 	},
 	clearMap: function()
 	{
@@ -393,6 +412,11 @@ Map.prototype =
 			tile.setForest();
 		}
 	},
+	// Removes a zone from the map
+	removeZone: function(zone)
+	{
+		this.zones.splice(this.zones.indexOf(zone), 1);
+	},
 	// Bulldoze a tile. Returns the cost if any
 	bulldozeTile: function(x, y, pretend)
 	{
@@ -500,6 +524,8 @@ Map.prototype =
 			bottom > this.height)
 			return cost;
 		
+		var zone = new Zone(zoneType, left, top, right, bottom);
+		
 		// Try to zone off all of the tiles to make sure it will work
 		var ix, iy, tile;
 		for(iy = top; iy < bottom; ++iy)
@@ -507,7 +533,7 @@ Map.prototype =
 			for(ix = left; ix < right; ++ix)
 			{
 				tile = this.tiles[iy * this.width + ix];
-				if(tile.buildZone(zoneType, (iy - top) * info.width + (ix - left), true) < 0)
+				if(tile.buildZone(zone, true) < 0)
 					return cost;
 			}
 		}
@@ -518,31 +544,165 @@ Map.prototype =
 			for(ix = left; ix < right; ++ix)
 			{
 				tile = this.tiles[iy * this.width + ix];
-				cost += tile.buildZone(zoneType, (iy - top) * info.width + (ix - left), pretend);
+				cost += tile.buildZone(zone, pretend);
 			}
 		}
 		
-		// Walk the edges and reset tiles and redraw the whole area
+		// Actually build the zone
 		if(!pretend)
 		{
-			for(ix = left - 1; ix <= right; ++ix)
-			{
-				if(top > 0)
-					this.tiles[(top - 1) * this.width + ix].resetAllTiles();
-				if(top < this.height - 1)
-					this.tiles[(top + 1) * this.width + ix].resetAllTiles();
-			}
-			for(iy = top; iy < bottom; ++iy)
-			{
-				if(left > 0)
-					this.tiles[top * this.width + ix - 1].resetAllTiles();
-				if(left < this.width - 1)
-					this.tiles[top * this.width + ix + 1].resetAllTiles();
-			}
+			zone.setTiles();
+			this.zones.push(zone);
+			zone.resetEdges();
+			
+			// And redraw everything
 			this.drawRect(left - 1, top - 1, info.width + 2, info.height + 2);
 		}
 		
 		cost += game.rules.cost.zones[zoneType];
 		return cost;
+	},
+	// Runs all calculations for the power grid
+	doPowerGrid: function()
+	{
+		var i, powerStack = [], stackPointer = 0, powerLeft = 0, zone, tile;
+		
+		// Clear the power grid
+		for(i = 0; i < this.tiles.length; ++i)
+		{
+			tile = this.tiles[i];
+			tile.powered = false;
+			tile.scanned = false;
+		}
+		
+		// Look for power plant zones and add them to the stack
+		for(i = 0; i < this.zones.length; ++i)
+		{
+			zone = this.zones[i];
+			if(zone.zoneInfo.powerType != "none")
+			{
+				tile = this.tiles[zone.top * this.width + zone.left];
+				powerStack.push(tile);
+				powerLeft += game.rules.powerGeneration[
+					zone.zoneInfo.powerType];
+			}
+		}
+		
+		// Process tiles until we run out of power or tiles
+		while(stackPointer < powerStack.length &&
+			powerLeft > 0)
+		{
+			tile = powerStack[stackPointer++];
+			if(tile.zone)
+				--powerLeft;
+			tile.powered = true;
+			if(!tile.n.scanned && (tile.n.line || tile.n.zone) && !tile.n.powered)
+				powerStack.push(tile.n);
+			if(!tile.s.scanned && (tile.s.line || tile.s.zone) && !tile.s.powered)
+				powerStack.push(tile.s);
+			if(!tile.e.scanned && (tile.e.line || tile.e.zone) && !tile.e.powered)
+				powerStack.push(tile.e);
+			if(!tile.w.scanned && (tile.w.line || tile.w.zone) && !tile.w.powered)
+				powerStack.push(tile.w);
+			tile.scanned = true;
+			tile.n.scanned = true;
+			tile.s.scanned = true;
+			tile.e.scanned = true;
+			tile.w.scanned = true;
+		}
+	},
+	// Generate an array of values representing the save file representation
+	// of this map.
+	getSaveState: function()
+	{
+		var ret = {
+			width: this.width,
+			height: this.height,
+			centerX: this.centerX,
+			centerY: this.centerY
+		};
+		
+		// RLE-compressed tile storage
+		var tileValues = [];
+		var lastTileValue = null;
+		var tileRepeatCount = 0;
+		for(var i = 0; i < this.width * this.height; ++i)
+		{
+			var tile = this.tiles[i].getSaveState();
+			if(lastTileValue == tile)
+				++tileRepeatCount;
+			else
+			{
+				if(lastTileValue != null)
+				{
+					if(tileRepeatCount == 0)
+						tileValues.push(lastTileValue.toString(36));
+					else
+						tileValues.push((lastTileValue | 0x80000).toString(36), tileRepeatCount.toString(36));
+				}
+				lastTileValue = tile;
+				tileRepeatCount = 0;
+			}
+		}
+		if(tileRepeatCount == 0)
+			tileValues.push(lastTileValue.toString(36));
+		else
+			tileValues.push((lastTileValue | 0x80000).toString(36), tileRepeatCount.toString(36));
+		ret.tiles = tileValues.join(",");
+		
+		// Zones
+		var zoneValues = [];
+		for(var i = 0; i < this.zones.length; ++i)
+		{
+			zoneValues.push(this.zones[i].getSaveState());
+		}
+		ret.zones = zoneValues.join(",");
+		
+		return ret;
+	},
+	// Load map data from save file representation array.
+	loadSaveState: function(state)
+	{
+		this.rect.color = null;
+		this.width = state.width;
+		this.height = state.height;
+		this.centerX = state.centerX;
+		this.centerY = state.centerY;
+		
+		// Tiles (RLE-compressed)
+		var tileData = state.tiles.split(",");
+		var i = 0;
+		var outputPointer = 0;
+		var tileValue, repeatCount, j;
+		while(i < tileData.length)
+		{
+			tileValue = parseInt(tileData[i++], 36);
+			if((tileValue & 0x80000) > 0)
+			{
+				repeatCount = parseInt(tileData[i++], 36);
+				tileValue &= 0x7ffff;
+				for(j = 0; j <= repeatCount; ++j)
+				{
+					this.tiles[outputPointer++].loadSaveState(tileValue);
+				}
+			}
+			else
+				this.tiles[outputPointer++].loadSaveState(tileValue);
+		}
+		
+		// Zones
+		var zoneData = state.zones.split(",");
+		this.zones = [];
+		for(i = 0; i < zoneData.length; ++i)
+		{
+			var zone = new Zone();
+			zone.loadSaveState(zoneData[i]);
+			this.zones.push(zone);
+		}
+		
+		// Run baseline simulations
+		this.doPowerGrid();
+		
+		this.draw();
 	}
 };

@@ -2,10 +2,12 @@ var rules =
 {
 	base:
 	{
+		name: "base",
 		cost:
 		{
 			bulldoze: 1,
 			bulldozeBridge: 10,
+			bulldozeZone: 1,
 			road: 10,
 			roadBridge: 50,
 			rail: 20,
@@ -25,23 +27,23 @@ var rules =
 				seaport: 5000,
 				stadium: 3000,
 				airport: 10000
-			},
-			funding:
-			{
-				road: 1,
-				roadBridge: 4,
-				line: 0,
-				lineBridge: 0,
-				rail: 4,
-				railBridge: 10,
-				police: 100,
-				fire: 100
-			},
-			power:
-			{
-				coal: 50,
-				nuclear: 150
 			}
+		},
+		funding:
+		{
+			road: 1,
+			roadBridge: 4,
+			line: 0,
+			lineBridge: 0,
+			rail: 4,
+			railBridge: 10,
+			police: 100,
+			fire: 100
+		},
+		powerGeneration:
+		{
+			coal: 700,
+			nuclear: 2000
 		}
 	}
 };

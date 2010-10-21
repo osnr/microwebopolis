@@ -1,8 +1,44 @@
-var dialogs =
+var dialog =
 {
 	init: function()
 	{
+		this.messageBox.init();
 		this.generateMap.init();
+	},
+	messageBox:
+	{
+		closeCallback: null,
+		init: function()
+		{
+			$("#messageBox")
+				.dialog({
+					autoOpen: false,
+					modal: true,
+					resizeable: false,
+					title: "Message Box",
+					close: this.onClose,
+					buttons: {
+						"Close": this.closeButton,
+					}
+				});
+		},
+		show: function(title, message, closeCallback)
+		{
+			this.closeCallback = closeCallback;
+			$("#messageBox")
+				.html(message)
+				.dialog("option", "title", title)
+				.dialog("open");
+		},
+		closeButton: function(e, ui)
+		{
+			$(this).dialog("close");
+		},
+		onClose: function(e, ui)
+		{
+			if(dialog.closeCallback)
+				dialog.closeCallback(e, ui);
+		}
 	},
 	generateMap:
 	{
@@ -14,7 +50,7 @@ var dialogs =
 		{
 			$("#generateNewMap")
 				.dialog({
-					autoOpen: true,
+					autoOpen: false,
 					modal: true,
 					resizable: false,
 					title: "Generate a New Map",
@@ -46,6 +82,12 @@ var dialogs =
 					range: "min",
 					value: 50
 				});
+		},
+		show: function(title, message, okCallback, cancelCallback)
+		{
+			this.okCallback = okCallback;
+			this.cancelCallback = cancelCallback;
+			$("#generateNewMap").dialog("open");
 		},
 		generate: function(e)
 		{

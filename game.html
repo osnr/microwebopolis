@@ -3,22 +3,24 @@
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 	<title>Micropolis</title>
-	<link rel="stylesheet" type="text/css" href="./css/theme/jquery-ui-1.8.5.custom.css">
-	<script type="text/javascript" src="./js/jquery/jquery-1.4.2.min.js"></script>
-	<script type="text/javascript" src="./js/jquery/jquery-ui-1.8.5.custom.min.js"></script>
-	<script type="text/javascript" src="./js/json/json2.js"></script>
-	<link rel="stylesheet" type="text/css" href="./css/style.css">
-	<script type="text/javascript" src="./js/color.js"></script>
-	<script type="text/javascript" src="./js/rules.js"></script>
-	<script type="text/javascript" src="./js/main.js"></script>
-	<script type="text/javascript" src="./js/canvas.js"></script>
-	<script type="text/javascript" src="./js/map.js"></script>
-	<script type="text/javascript" src="./js/ui.js"></script>
-	<script type="text/javascript" src="./js/dialogs.js"></script>
-	<script type="text/javascript" src="./js/gamestate.js"></script>
-	<script type="text/javascript" src="./js/util.js"></script>
-	<script type="text/javascript" src="./js/tile.js"></script>
-	<script type="text/javascript" src="./js/data.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/theme/jquery-ui-1.8.5.custom.css">
+	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.5.custom.min.js"></script>
+	<script type="text/javascript" src="js/json/json2.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script type="text/javascript" src="js/color.js"></script>
+	<script type="text/javascript" src="js/rules.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/canvas.js"></script>
+	<script type="text/javascript" src="js/map.js"></script>
+	<script type="text/javascript" src="js/ui.js"></script>
+	<script type="text/javascript" src="js/dialogs.js"></script>
+	<script type="text/javascript" src="js/gamestate.js"></script>
+	<script type="text/javascript" src="js/util.js"></script>
+	<script type="text/javascript" src="js/tile.js"></script>
+	<script type="text/javascript" src="js/zone.js"></script>
+	<script type="text/javascript" src="js/data.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
@@ -67,9 +69,14 @@
 					<td><div class="toolbox-icon icon-size3" id="toolboxNuclear"></div></td>
 				</tr>
 			</table>
+			<div id="saveButton">Save Game</div>
+			<button onclick="window.localStorage.removeItem('save');">Delete</button>
 		</div>
 	</div>
 </div>
+
+<!-- Message Box Dialog -->
+<div id="messageBox" style="display: none;"></div>
 
 <!-- Generate New Map Dialog -->
 <div id="generateNewMap" style="display: none;">
