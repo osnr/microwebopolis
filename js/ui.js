@@ -103,7 +103,12 @@ var ui =
 			.click(this.toolboxButton);
 		$(".toolbox-icon").each(function()
 		{
-			$(this).css("background-image", "url('" + $(this).data("iconhi") + "')");
+			$("body")
+				.append(
+					$("<div></div>")
+					.css("background-image", "url('" + $(this).data("iconhi") + "')")
+					.css("display", "none")
+				);
 			$(this).css("background-image", "url('" + $(this).data("iconlow") + "')");
 		});
 		this.currentTool = this.toolDefs.bulldozer;
