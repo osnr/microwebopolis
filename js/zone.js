@@ -5,15 +5,31 @@ function Zone(type, left, top, right, bottom)
 	this.right = right;
 	this.top = top;
 	this.bottom = bottom;
+	this.population = 0;
 	this.tiles = [];
 }
 Zone.prototype =
 {
+	// Call the update method for this zone, if any
+	update: function()
+	{
+		var method = this.updateMethods[this.zoneInfo.name];
+		if(method)
+			method.call(this);
+	},
 	// Set all of the graphic tiles of a zone
 	setTiles: function()
 	{
-		// TODO Handle population and land value parameters
 		var ix, iy, tileOfs = 0;
+
+		// Handle population and land value parameters
+		// TODO Handle land values
+		if(this.zoneInfo.populationStages)
+		{
+			// TODO Handle special case for residential zones
+			tileOfs += 9 * this.population;
+		}
+
 		for(iy = this.top; iy < this.bottom; ++iy)
 		{
 			for(ix = this.left; ix < this.right; ++ix)
@@ -87,6 +103,7 @@ Zone.prototype =
 		var ret = this.zoneInfo.zoneIndex & 0xf;
 		ret |= (this.left & 0xff) << 4;
 		ret |= (this.top & 0xff) << 12;
+		ret |= (this.population & 0xf) << 20;
 		return ret.toString(36);
 	},
 	// Load values from a saved state representation
@@ -96,6 +113,7 @@ Zone.prototype =
 		this.zoneInfo = data.zoneInfo.crossRef[state & 0xf];
 		this.left = (state & 0xff0) >> 4;
 		this.top = (state & 0xff000) >> 12;
+		this.population = (state & 0xf00000) >> 20;
 		this.right = this.left + this.zoneInfo.width;
 		this.bottom = this.top + this.zoneInfo.height;
 		var ix, iy;
@@ -106,5 +124,23 @@ Zone.prototype =
 				game.map.getTile(ix, iy).setZone(this);
 			}
 		}
+	},
+	// Maybe grow a zone based on a demand value
+	maybeGrow: function(demand)
+	{
+		if(this.population <= this.zoneInfo.populationStages &&
+			Math.random() < demand)
+		{
+			++this.population;
+			this.setTiles();
+		}
+	},
+	// Update routines for the different zone types
+	updateMethods:
+	{
+		industrial: function()
+		{
+			this.maybeGrow(game.map.externalMarket + game.map.unemployment);
+		},
 	}
 };

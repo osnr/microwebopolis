@@ -266,8 +266,7 @@ var ui =
 		var top = y - ((this.currentTool.height / 2) | 0);
 		$("#priceOverlay")
 			.css("display", "none");
-		game.map.drawRect(left, top, this.currentTool.width,
-			this.currentTool.height);
+		game.map.clearHighlight();
 	},
 	toolDo: function(x, y)
 	{

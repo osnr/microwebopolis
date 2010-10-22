@@ -5,6 +5,10 @@ var game =
 	rules: null,
 	config: null,
 	doFrameUpdate: false,
+	frameCounter: -1,
+	oddFrame: false,
+	frameBitTwo: false,
+	simPaused: true,
 	init: function()
 	{
 		data.init();
@@ -20,6 +24,17 @@ var game =
 		ui.resize();
 		this.state.updateUI();
 		this.frameRefresh();
+		this.simPaused = false;
+		this.simUpdate();
+	},
+	simUpdate: function()
+	{
+		if(!game.simPaused)
+		{
+			game.map.doPowerGrid();
+			game.map.doZones();
+		}
+		setTimeout(game.simUpdate, game.config.simUpdateDelay);
 	},
 	redrawEverything: function()
 	{
@@ -29,6 +44,10 @@ var game =
 	{
 		if(game.frameRefresh)
 		{
+			if(game.frameCounter++ > 1023)
+				game.frameCounter = 0;
+			game.oddFrame = (game.frameCounter & 1) > 0;
+			game.frameBitTwo = (game.frameCounter & 0x2) > 0;
 			game.redrawEverything();
 		}
 		setTimeout(game.frameRefresh, game.config.frameUpdateDelay);

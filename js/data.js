@@ -9,6 +9,7 @@ var data =
 		// to change the save file format for the Zone object.
 		park:
 		{
+			name: "park",
 			ofsLeft: 0,
 			ofsTop: 0,
 			width: 1,
@@ -19,36 +20,46 @@ var data =
 		},
 		residential:
 		{
+			name: "residential",
 			ofsLeft: -1,
 			ofsTop: -1,
 			width: 3,
 			height: 3,
 			baseTile: 240,
 			zoneIndex: 1,
-			powerType: "none"
+			powerType: "none",
+			populationStages: 5,
+			valueStages: 4
 		},
 		commercial:
 		{
+			name: "commercial",
 			ofsLeft: -1,
 			ofsTop: -1,
 			width: 3,
 			height: 3,
 			baseTile: 423,
 			zoneIndex: 2,
-			powerType: "none"
+			powerType: "none",
+			populationStages: 5,
+			valueStages: 5
 		},
 		industrial:
 		{
+			name: "industrial",
 			ofsLeft: -1,
 			ofsTop: -1,
 			width: 3,
 			height: 3,
 			baseTile: 612,
 			zoneIndex: 3,
-			powerType: "none"
+			powerType: "none",
+			populationStages: 4,
+			valueStages: 2
 		},
 		police:
 		{
+			name: "police",
 			ofsLeft: -1,
 			ofsTop: -1,
 			width: 3,
@@ -59,6 +70,7 @@ var data =
 		},
 		fire:
 		{
+			name: "fire",
 			ofsLeft: -1,
 			ofsTop: -1,
 			width: 3,
@@ -69,6 +81,7 @@ var data =
 		},
 		coal:
 		{
+			name: "coal",
 			ofsLeft: -2,
 			ofsTop: -2,
 			width: 4,
@@ -79,6 +92,7 @@ var data =
 		},
 		nuclear:
 		{
+			name: "nuclear",
 			ofsLeft: -2,
 			ofsTop: -2,
 			width: 4,
@@ -89,6 +103,7 @@ var data =
 		},
 		seaport:
 		{
+			name: "seaport",
 			ofsLeft: -2,
 			ofsTop: -2,
 			width: 4,
@@ -99,6 +114,7 @@ var data =
 		},
 		stadium:
 		{
+			name: "stadium",
 			ofsLeft: -2,
 			ofsTop: -2,
 			width: 4,
@@ -109,6 +125,7 @@ var data =
 		},
 		airport:
 		{
+			name: "airport",
 			ofsLeft: -3,
 			ofsTop: -3,
 			width: 6,

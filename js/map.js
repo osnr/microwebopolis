@@ -22,6 +22,11 @@ Map.prototype =
 	viewOffsetY: 0,
 	centerX: 64,
 	centerY: 64,
+	externalMarket: 0.15,
+	internalMarket: 0,
+	population: 0,
+	jobs: 0,
+	unemployment: 0,
 	rect:
 	{
 		x: 0,
@@ -93,6 +98,11 @@ Map.prototype =
 				right - left, bottom - top, this.rect.color);
 		}
 	},
+	clearHighlight: function()
+	{
+		this.rect.color = null;
+		this.drawRect(this.rect.x, this.rect.y, this.rect.w, this.rect.h);
+	},
 	draw: function()
 	{
 		this.updateViewOffset();
@@ -117,7 +127,7 @@ Map.prototype =
 					iy - this.viewOffsetY);
 				
 				// No power icon
-				if((tile.line || tile.zone) && !tile.powered)
+				if(game.frameBitTwo && (tile.line || tile.zone) && !tile.powered)
 					canvas.blitTile(827, ix - this.viewOffsetX,
 						iy - this.viewOffsetY);
 				
@@ -138,7 +148,7 @@ Map.prototype =
 			y - this.viewOffsetY);
 				
 		// No power icon
-		if((tile.line || tile.zone) && !tile.powered)
+		if(game.frameBitTwo && (tile.line || tile.zone) && !tile.powered)
 			canvas.blitTile(827, x - this.viewOffsetX,
 			y - this.viewOffsetY);
 	},
@@ -164,7 +174,7 @@ Map.prototype =
 					iy - this.viewOffsetY);
 				
 				// No power icon
-				if((tile.line || tile.zone) && !tile.powered)
+				if(game.frameBitTwo && (tile.line || tile.zone) && !tile.powered)
 					canvas.blitTile(827, ix - this.viewOffsetX,
 						iy - this.viewOffsetY);
 				
@@ -609,6 +619,16 @@ Map.prototype =
 			tile.s.scanned = true;
 			tile.e.scanned = true;
 			tile.w.scanned = true;
+		}
+	},
+	// Update all zones
+	doZones: function()
+	{
+		var i;
+		
+		for(i = 0; i < this.zones.length; ++i)
+		{
+			this.zones[i].update();
 		}
 	},
 	// Generate an array of values representing the save file representation

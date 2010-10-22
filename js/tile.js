@@ -170,6 +170,7 @@ Tile.prototype =
 		if(!pretend)
 		{
 			this.setZone(zone);
+			this.powered = true;
 		}
 		
 		return cost;
@@ -437,6 +438,7 @@ Tile.prototype =
 		if(!pretend)
 		{
 			this.line = true;
+			this.powered = true;
 			this.hBridge = isHBridge;
 			this.setLineTile();
 			this.n.setLineTile();
