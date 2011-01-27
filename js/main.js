@@ -1,9 +1,9 @@
 var game =
 {
 	map: null,
-	state: null,
 	rules: null,
 	config: null,
+	sim: null,
 	doFrameUpdate: false,
 	frameCounter: -1,
 	oddFrame: false,
@@ -19,10 +19,10 @@ var game =
 			return;
 		ui.update();
 		this.map = new Map(128, 128, {});
-		this.state = new GameState();
+		this.sim = new Simulation();
 		this.load("save");
 		ui.resize();
-		this.state.updateUI();
+		this.sim.updateUI();
 		this.frameRefresh();
 		this.simPaused = false;
 		this.simUpdate();
@@ -31,8 +31,10 @@ var game =
 	{
 		if(!game.simPaused)
 		{
+			game.sim.update();
 			game.map.doPowerGrid();
 			game.map.doZones();
+			game.sim.updateUI();
 		}
 		setTimeout(game.simUpdate, game.config.simUpdateDelay);
 	},
@@ -61,7 +63,7 @@ var game =
 		}
 		var save = {
 			version: data.saveStateVersionNumber,
-			state: this.state.getSaveState(),
+			sim: this.sim.getSaveState(),
 			map: this.map.getSaveState(),
 			rules: this.rules.name
 		};
@@ -97,7 +99,7 @@ var game =
 		}
 		
 		this.doFrameUpdate = false;
-		try
+		//try
 		{
 			var save = window.localStorage.getItem(name);
 			if(!save)
@@ -109,15 +111,15 @@ var game =
 				return false;
 			}
 			this.rules = rules[save.rules];
-			this.state.loadSaveState(save.state);
+			this.sim.loadSaveState(save.sim);
 			this.map.loadSaveState(save.map);
 		}
-		catch(e)
+		//catch(e)
 		{
-			dialog.messageBox.show("Error", "Your game could not be loaded.");
-			return false;
+		//	dialog.messageBox.show("Error", "Your game could not be loaded.");
+		//	return false;
 		}
-		finally
+		//finally
 		{
 			this.doFrameUpdate = true;
 		}

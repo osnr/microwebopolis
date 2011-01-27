@@ -583,6 +583,8 @@ Map.prototype =
 			tile = this.tiles[i];
 			tile.powered = false;
 			tile.scanned = false;
+			if(tile.zone)
+				tile.zone.powered = false;
 		}
 		
 		// Look for power plant zones and add them to the stack
@@ -606,6 +608,8 @@ Map.prototype =
 			if(tile.zone)
 				--powerLeft;
 			tile.powered = true;
+			if(tile.zone)
+				tile.zone.powered = true;
 			if(!tile.n.scanned && (tile.n.line || tile.n.zone) && !tile.n.powered)
 				powerStack.push(tile.n);
 			if(!tile.s.scanned && (tile.s.line || tile.s.zone) && !tile.s.powered)

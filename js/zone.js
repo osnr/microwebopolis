@@ -6,13 +6,14 @@ function Zone(type, left, top, right, bottom)
 	this.top = top;
 	this.bottom = bottom;
 	this.population = 0;
-	this.tiles = [];
+	this.powered = true;
 }
 Zone.prototype =
 {
 	// Call the update method for this zone, if any
 	update: function()
 	{
+		// Update
 		var method = this.updateMethods[this.zoneInfo.name];
 		if(method)
 			method.call(this);
@@ -26,8 +27,29 @@ Zone.prototype =
 		// TODO Handle land values
 		if(this.zoneInfo.populationStages)
 		{
-			// TODO Handle special case for residential zones
-			tileOfs += 9 * this.population;
+			// Handle special case for residential zones
+			if(this.zoneInfo.name == "residential")
+			{
+				if(this.population == 1)
+				{
+					tileOfs = 9;
+					// TODO Handle land values
+					for(iy = this.top; iy < this.bottom; ++iy)
+					{
+						for(ix = this.left; ix < this.right; ++ix)
+						{
+							game.map.getTile(ix, iy)
+								.setTile(this.zoneInfo.baseTile + tileOfs +
+									rand(3));
+						}
+					}
+					return;
+				}
+				else if(this.population > 1)
+					tileOfs += 12 + 9 * (this.population - 1);
+			}
+			else
+				tileOfs += 9 * this.population;
 		}
 
 		for(iy = this.top; iy < this.bottom; ++iy)
@@ -128,8 +150,8 @@ Zone.prototype =
 	// Maybe grow a zone based on a demand value
 	maybeGrow: function(demand)
 	{
-		if(this.population <= this.zoneInfo.populationStages &&
-			Math.random() < demand)
+		if(this.population < this.zoneInfo.populationStages &&
+			Math.random() < (demand / (this.population + 1)))
 		{
 			++this.population;
 			this.setTiles();
@@ -138,9 +160,92 @@ Zone.prototype =
 	// Update routines for the different zone types
 	updateMethods:
 	{
+		residential: function()
+		{
+			if(this.population * 8 > rand(36))
+			{
+				// TODO Traffic to commercial zones
+			}
+			
+			// Try to grow 1/8th of the time
+			if(rand(8) == 0)
+			{
+				// TODO Account for property value and polution
+				/*
+					    if (traf < 0) {
+					        return -3000;
+					    }
+					
+					    value =  landValueMap.worldGet(pos.posX, pos.posY);
+					    value -= pollutionDensityMap.worldGet(pos.posX, pos.posY);
+					
+					    if (value < 0) {
+					        value = 0;
+					    } else {
+					        value = min(value * 32, 6000);
+					    }				
+    					value = value - 3000;
+    			*/
+				var value = 200;
+				var rate = game.sim.residentialGrowthRate + value;
+				if(!this.powered)
+					rate = -500;
+				
+				// Very strange formulas pulled from the origional source
+				if(this.population < this.zoneInfo.populationStages &&
+					rate > -350 &&
+					rate - 26380 > randS16())
+				{
+					// TODO Make hospitals if needed
+					++this.population;
+					this.setTiles();
+				}
+				else if(this.population > 0 &&
+					rate < 350 &&
+					rate + 26380 > randS16())
+				{
+					--this.population;
+					this.setTiles();					
+				}
+
+			}
+		},
+		commercial: function()
+		{
+			// TODO Include traffic, polution and crime
+			this.maybeGrow(game.sim.commercialGrowthRate);
+		},
 		industrial: function()
 		{
-			this.maybeGrow(game.map.externalMarket + game.map.unemployment);
-		},
+			if(this.population > rand(6))
+			{
+				// TODO Traffic to residential zones
+			}
+			
+			// Try to grow 1/8th of the time
+			if(rand(8) == 0)
+			{
+				var rate = game.sim.industrialGrowthRate;
+				// TODO Set rate to -1000 if we have no road / rail
+				if(!this.powered)
+					rate = -500;
+
+				// Very strange formulas pulled from the origional source
+				if(this.population < this.zoneInfo.populationStages &&
+					rate > -350 &&
+					rate - 26380 > randS16())
+				{
+					++this.population;
+					this.setTiles();
+				}
+				else if(this.population > 0 &&
+					rate < 350 &&
+					rate + 26380 > randS16())
+				{
+					--this.population;
+					this.setTiles();					
+				}
+			}
+		}
 	}
 };

@@ -19,6 +19,10 @@ function rand(exclusiveMax)
 {
 	return (Math.random() * exclusiveMax) | 0;
 }
+function randS16()
+{
+	return (Math.random() * 65536 - 32768) | 0;
+}
 var dirOfsX = [0, 0, 1, -1, 1, 1, -1, -1];
 var dirOfsY = [-1, 1, 0, 0, -1, 1, -1, 1];
 function rotateDir(dir, steps)
@@ -42,4 +46,8 @@ function rotateDir(dir, steps)
 		}
 	}
 	return dir;
+}
+Math.clamp = function(x, y, z)
+{
+	return x < y ? y : x > z ? z : x;
 }

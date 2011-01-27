@@ -44,6 +44,32 @@ var rules =
 		{
 			coal: 700,
 			nuclear: 2000
+		},
+		sim:
+		{
+			ticksPerMonth: 10,
+			monthsPerYear: 12,
+			birthRate: 0.02,
+			laborBaseMax: 1.3,
+			internalMarketDenom: 3.7,
+			projectedIndPopMin: 5,
+			residentialPopDemon: 8,
+			populationTotalDemon: 20,
+			residentialRatioDefault: 1.3,
+			residentialRatioMax: 2,
+			commercialRatioMax: 2,
+			industrialRatioMax: 2,
+			residentialGrowthMin: -2000,
+			residentialGrowthMax: 2000,
+			commercialGrowthMin: -1500,
+			commercialGrowthMax: 1500,
+			industrialGrowthMin: -1500,
+			industrialGrowthMax: 1500,
+			resPopCapWithoutStadium: 500,
+			comPopCapWithoutAirport: 100,
+			indPopCapWithoutSeaport: 70,
+			taxTableScale: 600,
+			taxEffectTable: [200,150,120,100,80,50,30,0,-10,-40,-100,-150,-200,-250,-300,-350,-400,-450,-500,-550,-600]
 		}
 	}
 };

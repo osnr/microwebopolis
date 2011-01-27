@@ -272,7 +272,7 @@ var ui =
 	{
 		this.toolBlur(x, y);
 		var cost = this.currentTool.doIt(x, y, false);
-		game.state.chargeFunds(cost);
+		game.sim.chargeFunds(cost);
 		this.toolHover(x, y);
 	},
 	toolboxButton: function(e)
